@@ -249,7 +249,7 @@ class MockHomeAssistantAPI:
 
             # Replace basic state references
             for entity_id, state in self.states.items():
-                result = result.replace(f"states('{entity_id}')", f"'{state['state']'}'")
+                result = result.replace("states('" + entity_id + "')", "'" + state['state'] + "'")
                 if "temperature" in entity_id:
                     result = result.replace("states('sensor.temperature')", "'72.5'")
 

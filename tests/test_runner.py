@@ -9,6 +9,7 @@ and coverage analysis for the state-of-the-art HA MCP implementation.
 import asyncio
 import sys
 import time
+import logging
 from pathlib import Path
 from typing import Dict, List, Any
 import json
@@ -27,11 +28,12 @@ class TestRunner:
         self.test_results = {}
         self.performance_metrics = {}
         self.coverage_data = {}
+        self.logger = logging.getLogger('ha_mcp_test_runner')
 
     async def run_all_tests(self) -> Dict[str, Any]:
         """Run complete test suite with comprehensive reporting."""
-        print(">>> Starting Home Assistant MCP Server Test Suite")
-        print("=" * 60)
+        self.logger.info("Starting Home Assistant MCP Server Test Suite")
+        self.logger.info("=" * 60)
 
         # Test suites to run
         test_suites = [
@@ -56,7 +58,7 @@ class TestRunner:
         }
 
         for suite in test_suites:
-            print(f"\n>>> Running {suite}...")
+            self.logger.info(f"Running {suite}...")
             suite_result = await self.run_test_suite(suite)
             total_results["suites_run"] += 1
 
@@ -102,7 +104,7 @@ class TestRunner:
         suite_result = {
             "suite_name": suite_name,
             "exit_code": result,
-            "execution_time": suite_time,
+            "duration": suite_time,
             "tests_run": 0,  # Would be parsed from pytest output
             "passed": 0,
             "failed": 0,
@@ -145,71 +147,71 @@ class TestRunner:
 
     async def generate_final_report(self, results: Dict[str, Any]):
         """Generate comprehensive final test report."""
-        print("\n" + "=" * 60)
-        print("📊 HOME ASSISTANT MCP TEST RESULTS")
-        print("=" * 60)
+        self.logger.info("\n" + "=" * 60)
+        self.logger.info("SUMMARY HOME ASSISTANT MCP TEST RESULTS")
+        self.logger.info("=" * 60)
 
         # Overall results
-        print(f"NEXT Quality Score: {results['quality_score']:.1f}/100")
-        print(f"📦 Suites: {results['suites_passed']}/{results['suites_run']} passed")
-        print(f"TESTS Tests: {results['passed_tests']}/{results['total_tests']} passed")
-        print(f"FAILED Failed: {results['failed_tests']}")
-        print(f"SKIPPED Skipped: {results['skipped_tests']}")
+        self.logger.info(f"NEXT Quality Score: {results['quality_score']:.1f}/100")
+        self.logger.info(f"SUITES Suites: {results['suites_passed']}/{results['suites_run']} passed")
+        self.logger.info(f"TESTS Tests: {results['passed_tests']}/{results['total_tests']} passed")
+        self.logger.info(f"FAILED Failed: {results['failed_tests']}")
+        self.logger.info(f"SKIPPED Skipped: {results['skipped_tests']}")
 
         # FastMCP 2.14.3 Compliance
-        print("\nTOOLS FASTMCP 2.14.3 COMPLIANCE:")
-        print("  PASS Autonomous Orchestration")
-        print("  PASS Conversational Responses")
-        print("  PASS Sampling Capabilities")
-        print("  PASS Multi-step AI Planning")
+        self.logger.info("\nTOOLS FASTMCP 2.14.3 COMPLIANCE:")
+        self.logger.info("  PASS Autonomous Orchestration")
+        self.logger.info("  PASS Conversational Responses")
+        self.logger.info("  PASS Sampling Capabilities")
+        self.logger.info("  PASS Multi-step AI Planning")
 
         # Feature coverage
-        print("\nFEATURES FEATURE COVERAGE:")
-        print("  PASS 25+ Specialized MCP Tools")
-        print("  PASS Natural Language Control")
-        print("  PASS Predictive Automation")
-        print("  PASS Multi-zone Orchestration")
-        print("  PASS Energy Intelligence")
-        print("  PASS Security Automation")
-        print("  PASS System Health Monitoring")
+        self.logger.info("\nFEATURES FEATURE COVERAGE:")
+        self.logger.info("  PASS 25+ Specialized MCP Tools")
+        self.logger.info("  PASS Natural Language Control")
+        self.logger.info("  PASS Predictive Automation")
+        self.logger.info("  PASS Multi-zone Orchestration")
+        self.logger.info("  PASS Energy Intelligence")
+        self.logger.info("  PASS Security Automation")
+        self.logger.info("  PASS System Health Monitoring")
 
         # Test suite results
-        print("\nSUITE SUITE RESULTS:")
+        self.logger.info("\nSUITE SUITE RESULTS:")
         for suite_name, suite_result in self.test_results.items():
             status = "PASS" if suite_result["exit_code"] == 0 else "FAILED"
-            print(f"  {status} {suite_name}: {suite_result['duration']:.2f}s")
+            self.logger.info(f"  {status} {suite_name}: {suite_result['duration']:.2f}s")
         # Errors and issues
         if results["errors"]:
-            print("\nISSUES ISSUES FOUND:")
+            self.logger.info("\nISSUES ISSUES FOUND:")
             for error in results["errors"][:5]:  # Show first 5
-                print(f"  • {error}")
+                self.logger.info(f"  • {error}")
             if len(results["errors"]) > 5:
-                print(f"  ... and {len(results['errors']) - 5} more")
+                self.logger.info(f"  ... and {len(results['errors']) - 5} more")
 
         # Recommendations
-        print("\nRECOMMENDATIONS RECOMMENDATIONS:")
+        self.logger.info("\nRECOMMENDATIONS RECOMMENDATIONS:")
         if results["quality_score"] >= 90:
-            print("  EXCELLENT Excellent! Ready for production deployment")
+            self.logger.info("  EXCELLENT Excellent! Ready for production deployment")
         elif results["quality_score"] >= 75:
-            print("  GOOD Good quality. Minor issues to address")
+            self.logger.info("  GOOD Good quality. Minor issues to address")
         elif results["quality_score"] >= 60:
-            print("  ACCEPTABLE Acceptable. Address failing tests before release")
+            self.logger.info("  ACCEPTABLE Acceptable. Address failing tests before release")
         else:
-            print("  POOR Poor quality. Major issues require attention")
+            self.logger.info("  POOR Poor quality. Major issues require attention")
 
         if results["failed_tests"] > 0:
-            print(f"  TOOLS Fix {results['failed_tests']} failing tests")
+            self.logger.info(f"  TOOLS Fix {results['failed_tests']} failing tests")
 
-        print("\nNEXT NEXT STEPS:")
-        print("  1. Address any failing tests")
-        print("  2. Run integration tests with real HA")
-        print("  3. Submit to HACS for community distribution")
-        print("  4. Launch community announcement")
-        print("  5. Monitor feedback and iterate")
+        self.logger.info("\nNEXT NEXT STEPS:")
+        self.logger.info("  1. Address any failing tests")
+        self.logger.info("  2. Run integration tests with real HA")
+        self.logger.info("  3. Submit to HACS for community distribution")
+        self.logger.info("  4. Launch community announcement")
+        self.logger.info("  5. Monitor feedback and iterate")
 
         # Performance summary
         total_time = time.time() - self.start_time
-        print(f"\nTIME Total test time: {total_time:.1f}s")
+        self.logger.info(f"\nTIME Total test time: {total_time:.1f}s")
         # Export detailed report
         report_file = Path("test_results.json")
         with open(report_file, 'w') as f:
@@ -221,11 +223,18 @@ class TestRunner:
                 "coverage": self.coverage_data
             }, f, indent=2)
 
-        print(f"\nREPORT Detailed report saved to: {report_file}")
+        self.logger.info(f"\nREPORT Detailed report saved to: {report_file}")
 
 
 async def main():
     """Main test runner entry point."""
+    # Set up logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger('ha_mcp_test_runner')
+
     runner = TestRunner()
     results = await runner.run_all_tests()
 

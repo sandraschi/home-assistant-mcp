@@ -17,14 +17,39 @@ from fastmcp import FastMCP
 from pydantic import BaseModel
 
 # Test data and fixtures
-from .fixtures.mock_ha_api import MockHomeAssistantAPI
-from .fixtures.sample_data import (
-    SAMPLE_ENTITIES,
-    SAMPLE_STATES,
-    SAMPLE_AUTOMATIONS,
-    SAMPLE_SCENES,
-    SAMPLE_CONFIG
-)
+try:
+    from .fixtures.mock_ha_api import MockHomeAssistantAPI
+    from .fixtures.sample_data import (
+        SAMPLE_ENTITIES,
+        SAMPLE_STATES,
+        SAMPLE_AUTOMATIONS,
+        SAMPLE_SCENES,
+        SAMPLE_CONFIG
+    )
+except ImportError:
+    # Handle case where conftest is imported directly (not by pytest)
+    try:
+        from fixtures.mock_ha_api import MockHomeAssistantAPI
+        from fixtures.sample_data import (
+            SAMPLE_ENTITIES,
+            SAMPLE_STATES,
+            SAMPLE_AUTOMATIONS,
+            SAMPLE_SCENES,
+            SAMPLE_CONFIG
+        )
+    except ImportError:
+        # Fallback for when running from different directory
+        import sys
+        import os
+        sys.path.insert(0, os.path.dirname(__file__))
+        from fixtures.mock_ha_api import MockHomeAssistantAPI
+        from fixtures.sample_data import (
+            SAMPLE_ENTITIES,
+            SAMPLE_STATES,
+            SAMPLE_AUTOMATIONS,
+            SAMPLE_SCENES,
+            SAMPLE_CONFIG
+        )
 
 
 @pytest.fixture(scope="session")
