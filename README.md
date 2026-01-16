@@ -262,16 +262,61 @@ Assistant:
 - **Camera Control**: Direct integration with IP cameras
 - **Unified Dashboard**: Cameras appear in HA device list
 - **Automation Triggers**: Camera events trigger HA automations
+- **Repository**: [sandraschi/tapo-camera-mcp](https://github.com/sandraschi/tapo-camera-mcp)
 
 ### **Virtualization MCP**
 - **HA VM Management**: Automated Home Assistant deployment
 - **Snapshot/Restore**: Backup and recovery of HA configurations
 - **Resource Control**: Dedicated compute resources for HA
+- **Repository**: [sandraschi/virtualization-mcp](https://github.com/sandraschi/virtualization-mcp)
+
+### **Basic Memory**
+- **Knowledge Management**: Persistent conversation context across sessions
+- **Documentation Storage**: Store HA automation documentation and procedures
+- **Query Integration**: Link HA device states with knowledge base
+- **Repository**: [sandraschi/basic-memory](https://github.com/sandraschi/basic-memory)
+
+### **Advanced Memory MCP**
+- **Enhanced Knowledge**: AI-powered knowledge graph for smart home documentation
+- **Context Preservation**: Maintain complex automation workflows and device relationships
+- **Search Integration**: Find relevant HA information across all documentation
+- **Repository**: [sandraschi/advanced-memory-mcp](https://github.com/sandraschi/advanced-memory-mcp)
+
+### **FastSearch MCP**
+- **Rapid File Discovery**: Instantly locate HA configuration files and logs
+- **Content Search**: Find specific automation rules and device configurations
+- **NTFS Integration**: Direct filesystem access for maximum performance
+- **Repository**: [sandraschi/fastsearch-mcp](https://github.com/sandraschi/fastsearch-mcp)
+
+### **Email MCP**
+- **Notification Integration**: Send HA alerts via email
+- **Report Generation**: Automated email reports of HA system status
+- **Event Monitoring**: Email notifications for important HA events
+- **Repository**: [sandraschi/email-mcp](https://github.com/sandraschi/email-mcp)
+
+### **Docker MCP**
+- **Container Management**: Deploy HA add-ons and custom containers
+- **Service Orchestration**: Manage HA-related Docker services
+- **Log Monitoring**: Access container logs for troubleshooting
+- **Repository**: [sandraschi/docker-mcp](https://github.com/sandraschi/docker-mcp)
+
+### **Filesystem MCP**
+- **Configuration Management**: Backup and restore HA configurations
+- **Log Analysis**: Parse and analyze HA log files
+- **Automation Scripts**: Manage HA automation files and scripts
+- **Repository**: [sandraschi/filesystem-mcp](https://github.com/sandraschi/filesystem-mcp)
+
+### **Monitoring MCP**
+- **System Health**: Monitor HA performance and resource usage
+- **Alert Integration**: Create monitoring alerts for HA services
+- **Metrics Collection**: Track HA uptime and response times
+- **Repository**: [sandraschi/monitoring-mcp](https://github.com/sandraschi/monitoring-mcp)
 
 ### **MCP Central Docs**
 - **Comprehensive Documentation**: [Home Assistant Integration Guide](../../mcp-central-docs/integrations/home-assistant/)
 - **Architecture Overview**: Understanding HA's unique ecosystem
 - **Troubleshooting**: Common issues and solutions
+- **Repository**: [sandraschi/mcp-central-docs](https://github.com/sandraschi/mcp-central-docs)
 
 ## 🔧 **Troubleshooting**
 
