@@ -1,0 +1,94 @@
+{
+  "mcpServers": {
+    "home-assistant": {
+      "command": "home-assistant-mcp",
+      "args": ["--config-file", "config.yaml"],
+      "env": {
+        "MCP_SERVER_TYPE": "home-assistant",
+        "MCP_VERSION": "2.14.3",
+        "LOG_LEVEL": "INFO"
+      },
+      "capabilities": {
+        "sampling": true,
+        "conversational": true,
+        "orchestration": true,
+        "learning": true
+      }
+    }
+  },
+  "context": {
+    "home-assistant": {
+      "description": "AI-Powered Home Assistant Control - Natural Language Smart Home Automation",
+      "tools": [
+        "query_entities",
+        "control_light_advanced",
+        "control_climate_advanced",
+        "execute_automation_advanced",
+        "activate_scene",
+        "smart_home_orchestration",
+        "analyze_home_patterns",
+        "get_home_status_detailed",
+        "monitor_energy_usage",
+        "security_monitoring",
+        "emergency_response",
+        "energy_optimization",
+        "create_smart_schedule",
+        "natural_language_control",
+        "predictive_automation",
+        "multi_zone_orchestration",
+        "debug_automation",
+        "system_maintenance_check"
+      ],
+      "prompts": [
+        "smart_home_setup",
+        "energy_optimization_guide",
+        "security_best_practices",
+        "automation_debugging",
+        "natural_language_examples",
+        "advanced_orchestration",
+        "maintenance_scheduling",
+        "predictive_automation_setup"
+      ],
+      "features": {
+        "conversational_responses": true,
+        "autonomous_orchestration": true,
+        "predictive_automation": true,
+        "multi_zone_control": true,
+        "energy_optimization": true,
+        "security_intelligence": true,
+        "learning_capabilities": true,
+        "natural_language_processing": true
+      }
+    }
+  },
+  " Zed Integration Guide": {
+    "setup_steps": [
+      "1. Install home-assistant-mcp package",
+      "2. Configure Home Assistant connection in config.yaml",
+      "3. Add this MCP server configuration to Zed",
+      "4. Restart Zed to load the MCP server",
+      "5. Use @home-assistant context for smart home control"
+    ],
+    "usage_examples": [
+      "@home-assistant Turn on the living room lights",
+      "@home-assistant What's the current temperature in all rooms?",
+      "@home-assistant Create a movie night automation",
+      "@home-assistant Analyze my energy usage patterns",
+      "@home-assistant Debug the morning routine automation"
+    ],
+    "advanced_features": [
+      "Autonomous orchestration for complex scenarios",
+      "Predictive automation based on learned patterns",
+      "Multi-zone coordination for whole-home control",
+      "AI-powered energy optimization and security",
+      "Conversational debugging and system maintenance"
+    ],
+    "best_practices": [
+      "Use natural language for complex multi-device scenarios",
+      "Leverage autonomous orchestration for routine tasks",
+      "Regular system health checks and optimization",
+      "Document custom automations for future debugging",
+      "Monitor energy usage and implement optimizations"
+    ]
+  }
+}

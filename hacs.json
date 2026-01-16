@@ -1,0 +1,34 @@
+{
+  "name": "Home Assistant MCP Server",
+  "description": "AI-powered natural language control for Home Assistant using Model Context Protocol",
+  "version": "0.1.0",
+  "slug": "home-assistant-mcp",
+  "url": "https://github.com/sandraschi/home-assistant-mcp",
+  "startup": "application",
+  "boot": "auto",
+  "init": false,
+  "arch": ["amd64", "armv7", "armhf", "aarch64", "i386"],
+  "hassio_api": false,
+  "hassio_role": "default",
+  "homeassistant": "2024.12.0",
+  "stage": "experimental",
+  "ports": {
+    "8080/tcp": null
+  },
+  "ports_description": {
+    "8080/tcp": "MCP server port (configurable)"
+  },
+  "options": {
+    "ha_url": "http://homeassistant.local:8123",
+    "ha_token": "",
+    "mcp_port": 8080,
+    "log_level": "INFO"
+  },
+  "schema": {
+    "ha_url": "str",
+    "ha_token": "password",
+    "mcp_port": "int(1024,65535)",
+    "log_level": "list(DEBUG|INFO|WARNING|ERROR)"
+  },
+  "image": "ghcr.io/sandraschi/home-assistant-mcp/{arch}"
+}

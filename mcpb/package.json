@@ -1,0 +1,121 @@
+{
+  "name": "home-assistant-mcp",
+  "version": "0.2.0",
+  "description": "🏠 State-of-the-Art AI-Powered Natural Language Control for Home Assistant - FastMCP 2.14.3 with Autonomous Orchestration",
+  "main": "dist/index.js",
+  "bin": {
+    "home-assistant-mcp": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc && npm run build:docs",
+    "build:docs": "typedoc --out dist/docs src/",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "prepublishOnly": "npm run build && npm run test",
+    "start": "node dist/cli.js",
+    "dev": "ts-node src/cli.ts"
+  },
+  "keywords": [
+    "mcp",
+    "home-assistant",
+    "smart-home",
+    "ai",
+    "automation",
+    "iot",
+    "home-automation",
+    "natural-language",
+    "fastmcp",
+    "model-context-protocol"
+  ],
+  "author": "Advanced Memory MCP Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sandraschi/home-assistant-mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/sandraschi/home-assistant-mcp/issues"
+  },
+  "homepage": "https://github.com/sandraschi/home-assistant-mcp#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "mcp": {
+    "server": {
+      "command": "home-assistant-mcp",
+      "args": ["--config-file", "config.yaml"],
+      "env": {
+        "MCP_SERVER_TYPE": "home-assistant",
+        "MCP_VERSION": "2.14.3"
+      }
+    },
+    "capabilities": {
+      "sampling": true,
+      "conversational": true,
+      "orchestration": true,
+      "learning": true
+    },
+    "tools": [
+      "query_entities",
+      "control_light_advanced",
+      "control_climate_advanced",
+      "execute_automation_advanced",
+      "activate_scene",
+      "smart_home_orchestration",
+      "analyze_home_patterns",
+      "get_home_status_detailed",
+      "monitor_energy_usage",
+      "security_monitoring",
+      "emergency_response",
+      "energy_optimization",
+      "create_smart_schedule",
+      "natural_language_control",
+      "predictive_automation",
+      "multi_zone_orchestration",
+      "debug_automation",
+      "system_maintenance_check"
+    ],
+    "prompts": [
+      "smart_home_setup",
+      "energy_optimization_guide",
+      "security_best_practices",
+      "automation_debugging",
+      "natural_language_examples",
+      "advanced_orchestration",
+      "maintenance_scheduling",
+      "predictive_automation_setup"
+    ]
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "fastmcp": "^2.14.3",
+    "home-assistant-js-websocket": "^8.0.1",
+    "axios": "^1.6.0",
+    "winston": "^3.11.0",
+    "dotenv": "^16.3.1",
+    "pydantic": "^2.5.0",
+    "commander": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "jest": "^29.7.0",
+    "eslint": "^8.55.0",
+    "typedoc": "^0.25.0",
+    "ts-node": "^10.9.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0"
+  },
+  "files": [
+    "dist/",
+    "mcpb/",
+    "prompts/",
+    "examples/",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ]
+}

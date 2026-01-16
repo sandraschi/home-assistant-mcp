@@ -1,0 +1,24 @@
+# Home Assistant MCP Configuration Example
+# Copy this file to config.yaml and fill in your values
+
+homeassistant:
+  # Home Assistant URL (required)
+  # For local HA: http://localhost:8123
+  # For remote HA: https://your-ha-domain.com
+  # For HA in Docker: http://host.docker.internal:8123
+  url: "http://localhost:8123"
+
+  # Long-lived access token (required)
+  # Get from: Home Assistant → Profile → Security → Long-Lived Access Tokens
+  access_token: "your_long_lived_access_token_here"
+
+  # Connection settings (optional)
+  timeout: 30.0                    # Request timeout in seconds
+  verify_ssl: true                 # Verify SSL certificates (set false for self-signed)
+  cache_ttl: 300                   # Cache entity states for 5 minutes
+  max_concurrent_requests: 10      # Limit concurrent API calls
+
+# MCP Server settings (optional)
+mcp:
+  debug: false                     # Enable debug logging
+  log_level: "INFO"               # Logging level (DEBUG, INFO, WARNING, ERROR)
