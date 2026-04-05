@@ -14,8 +14,8 @@ from home_assistant_mcp.mcp.tools import (
     EnergyOptimizationRequest
 )
 
-from .conftest import assert_conversational_response
-from .fixtures.sample_data import (
+from conftest import assert_conversational_response
+from fixtures.sample_data import (
     SAMPLE_SECURITY_SCENARIOS,
     SAMPLE_ENERGY_SCENARIOS
 )
@@ -25,7 +25,7 @@ class TestSecurityMonitoring:
     """Test security system monitoring and control."""
 
     @pytest.mark.asyncio
-    async def test_security_arm_home(self, mock_mcp_server):
+    async def test_security_arm_home(self, tool_functions):
         """Test arming security system in home mode."""
         request = SecurityMonitoringRequest(
             mode="armed_home",
@@ -34,7 +34,7 @@ class TestSecurityMonitoring:
             ai_anomaly_detection=True
         )
 
-        result = await mock_mcp_server.app.tools["security_monitoring"](request)
+        result = await tool_functions["security_monitoring"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -44,7 +44,7 @@ class TestSecurityMonitoring:
         assert "current_status" in result
 
     @pytest.mark.asyncio
-    async def test_security_arm_away(self, mock_mcp_server):
+    async def test_security_arm_away(self, tool_functions):
         """Test arming security system in away mode."""
         request = SecurityMonitoringRequest(
             mode="armed_away",
@@ -52,7 +52,7 @@ class TestSecurityMonitoring:
             notify_on_events=True
         )
 
-        result = await mock_mcp_server.app.tools["security_monitoring"](request)
+        result = await tool_functions["security_monitoring"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -61,14 +61,14 @@ class TestSecurityMonitoring:
         assert len(result["monitored_zones"]) >= 3
 
     @pytest.mark.asyncio
-    async def test_security_disarm(self, mock_mcp_server):
+    async def test_security_disarm(self, tool_functions):
         """Test disarming security system."""
         request = SecurityMonitoringRequest(
             mode="disarmed",
             zones=[]
         )
 
-        result = await mock_mcp_server.app.tools["security_monitoring"](request)
+        result = await tool_functions["security_monitoring"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -76,7 +76,7 @@ class TestSecurityMonitoring:
         assert result["security_mode"] == "disarmed"
 
     @pytest.mark.asyncio
-    async def test_security_with_ai_anomaly_detection(self, mock_mcp_server):
+    async def test_security_with_ai_anomaly_detection(self, tool_functions):
         """Test security monitoring with AI anomaly detection."""
         request = SecurityMonitoringRequest(
             mode="armed_home",
@@ -84,7 +84,7 @@ class TestSecurityMonitoring:
             notify_on_events=True
         )
 
-        result = await mock_mcp_server.app.tools["security_monitoring"](request)
+        result = await tool_functions["security_monitoring"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -96,9 +96,9 @@ class TestEmergencyResponse:
     """Test emergency response orchestration."""
 
     @pytest.mark.asyncio
-    async def test_fire_emergency_response(self, mock_mcp_server):
+    async def test_fire_emergency_response(self, tool_functions):
         """Test fire emergency response protocol."""
-        result = await mock_mcp_server.app.tools["emergency_response"]("fire_detected")
+        result = await tool_functions["emergency_response"]("fire_detected")
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -109,9 +109,9 @@ class TestEmergencyResponse:
         assert result["execution_time_seconds"] < 5.0  # Emergency should be fast
 
     @pytest.mark.asyncio
-    async def test_security_breach_response(self, mock_mcp_server):
+    async def test_security_breach_response(self, tool_functions):
         """Test security breach emergency response."""
-        result = await mock_mcp_server.app.tools["emergency_response"]("security_breach")
+        result = await tool_functions["emergency_response"]("security_breach")
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -120,9 +120,9 @@ class TestEmergencyResponse:
         assert "notifications_sent" in result
 
     @pytest.mark.asyncio
-    async def test_medical_emergency_response(self, mock_mcp_server):
+    async def test_medical_emergency_response(self, tool_functions):
         """Test medical emergency response."""
-        result = await mock_mcp_server.app.tools["emergency_response"]("medical_emergency")
+        result = await tool_functions["emergency_response"]("medical_emergency")
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -130,12 +130,12 @@ class TestEmergencyResponse:
         assert "emergency_contacts" in str(result).lower() or "medical" in str(result).lower()
 
     @pytest.mark.asyncio
-    async def test_emergency_response_timing(self, mock_mcp_server):
+    async def test_emergency_response_timing(self, tool_functions):
         """Test that emergency responses execute quickly."""
         import time
 
         start_time = time.time()
-        result = await mock_mcp_server.app.tools["emergency_response"]("fire_detected")
+        result = await tool_functions["emergency_response"]("fire_detected")
         execution_time = time.time() - start_time
 
         assert result["success"] is True
@@ -147,7 +147,7 @@ class TestEnergyOptimization:
     """Test energy optimization and monitoring."""
 
     @pytest.mark.asyncio
-    async def test_energy_eco_mode(self, mock_mcp_server):
+    async def test_energy_eco_mode(self, tool_functions):
         """Test energy optimization in eco mode."""
         request = EnergyOptimizationRequest(
             mode="eco",
@@ -156,7 +156,7 @@ class TestEnergyOptimization:
             zones=["living_areas", "bedrooms"]
         )
 
-        result = await mock_mcp_server.app.tools["energy_optimization"](request)
+        result = await tool_functions["energy_optimization"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -167,7 +167,7 @@ class TestEnergyOptimization:
         assert result["learning_enabled"] is True
 
     @pytest.mark.asyncio
-    async def test_energy_comfort_mode(self, mock_mcp_server):
+    async def test_energy_comfort_mode(self, tool_functions):
         """Test energy optimization in comfort mode."""
         request = EnergyOptimizationRequest(
             mode="comfort",
@@ -175,7 +175,7 @@ class TestEnergyOptimization:
             learn_patterns=True
         )
 
-        result = await mock_mcp_server.app.tools["energy_optimization"](request)
+        result = await tool_functions["energy_optimization"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -184,7 +184,7 @@ class TestEnergyOptimization:
         assert result["estimated_savings_kwh"] >= 0
 
     @pytest.mark.asyncio
-    async def test_energy_performance_mode(self, mock_mcp_server):
+    async def test_energy_performance_mode(self, tool_functions):
         """Test energy optimization in performance mode."""
         request = EnergyOptimizationRequest(
             mode="performance",
@@ -192,7 +192,7 @@ class TestEnergyOptimization:
             learn_patterns=False
         )
 
-        result = await mock_mcp_server.app.tools["energy_optimization"](request)
+        result = await tool_functions["energy_optimization"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -200,7 +200,7 @@ class TestEnergyOptimization:
         assert result["learning_enabled"] is False
 
     @pytest.mark.asyncio
-    async def test_energy_optimization_zones(self, mock_mcp_server):
+    async def test_energy_optimization_zones(self, tool_functions):
         """Test energy optimization for specific zones."""
         request = EnergyOptimizationRequest(
             mode="eco",
@@ -208,7 +208,7 @@ class TestEnergyOptimization:
             duration=3600
         )
 
-        result = await mock_mcp_server.app.tools["energy_optimization"](request)
+        result = await tool_functions["energy_optimization"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -221,9 +221,9 @@ class TestEnergyMonitoring:
     """Test energy usage monitoring and analysis."""
 
     @pytest.mark.asyncio
-    async def test_energy_monitoring_24h(self, mock_mcp_server):
+    async def test_energy_monitoring_24h(self, tool_functions):
         """Test 24-hour energy monitoring."""
-        result = await mock_mcp_server.app.tools["monitor_energy_usage"](hours=24)
+        result = await tool_functions["monitor_energy_usage"](hours=24)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -234,9 +234,9 @@ class TestEnergyMonitoring:
         assert isinstance(result["insights"], list)
 
     @pytest.mark.asyncio
-    async def test_energy_monitoring_weekly(self, mock_mcp_server):
+    async def test_energy_monitoring_weekly(self, tool_functions):
         """Test weekly energy monitoring."""
-        result = await mock_mcp_server.app.tools["monitor_energy_usage"](hours=168)  # 1 week
+        result = await tool_functions["monitor_energy_usage"](hours=168)  # 1 week
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -245,9 +245,9 @@ class TestEnergyMonitoring:
         assert "efficiency_score" in result
 
     @pytest.mark.asyncio
-    async def test_energy_high_consumption_detection(self, mock_mcp_server):
+    async def test_energy_high_consumption_detection(self, tool_functions):
         """Test detection of high energy consumption."""
-        result = await mock_mcp_server.app.tools["monitor_energy_usage"](hours=24)
+        result = await tool_functions["monitor_energy_usage"](hours=24)
 
         assert_conversational_response(result)
         # Should identify high consumers
@@ -255,9 +255,9 @@ class TestEnergyMonitoring:
         assert "top" in insights or "consumer" in insights or "usage" in insights
 
     @pytest.mark.asyncio
-    async def test_energy_savings_recommendations(self, mock_mcp_server):
+    async def test_energy_savings_recommendations(self, tool_functions):
         """Test energy savings recommendations."""
-        result = await mock_mcp_server.app.tools["monitor_energy_usage"](hours=48)
+        result = await tool_functions["monitor_energy_usage"](hours=48)
 
         assert_conversational_response(result)
         assert "savings_opportunities" in result
@@ -272,9 +272,9 @@ class TestSystemMaintenance:
     """Test system maintenance and health monitoring."""
 
     @pytest.mark.asyncio
-    async def test_comprehensive_maintenance_check(self, mock_mcp_server):
+    async def test_comprehensive_maintenance_check(self, tool_functions):
         """Test full system maintenance check."""
-        result = await mock_mcp_server.app.tools["system_maintenance_check"]()
+        result = await tool_functions["system_maintenance_check"]()
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -284,9 +284,9 @@ class TestSystemMaintenance:
         assert "performance_metrics" in result
 
     @pytest.mark.asyncio
-    async def test_maintenance_health_assessment(self, mock_mcp_server):
+    async def test_maintenance_health_assessment(self, tool_functions):
         """Test system health assessment."""
-        result = await mock_mcp_server.app.tools["system_maintenance_check"]()
+        result = await tool_functions["system_maintenance_check"]()
 
         health = result["overall_health"]
         assert health in ["good", "warning", "critical"]
@@ -301,9 +301,9 @@ class TestSystemMaintenance:
             assert any(issue["severity"] == "critical" for issue in result["issues"])
 
     @pytest.mark.asyncio
-    async def test_maintenance_performance_metrics(self, mock_mcp_server):
+    async def test_maintenance_performance_metrics(self, tool_functions):
         """Test performance metrics in maintenance check."""
-        result = await mock_mcp_server.app.tools["system_maintenance_check"]()
+        result = await tool_functions["system_maintenance_check"]()
 
         metrics = result["performance_metrics"]
         assert "response_time" in metrics
@@ -312,9 +312,9 @@ class TestSystemMaintenance:
         assert metrics["memory_usage"] > 0
 
     @pytest.mark.asyncio
-    async def test_maintenance_task_recommendations(self, mock_mcp_server):
+    async def test_maintenance_task_recommendations(self, tool_functions):
         """Test maintenance task recommendations."""
-        result = await mock_mcp_server.app.tools["system_maintenance_check"]()
+        result = await tool_functions["system_maintenance_check"]()
 
         tasks = result["maintenance_tasks"]
         assert isinstance(tasks, list)
@@ -330,9 +330,9 @@ class TestAutomationDebugging:
     """Test automation debugging and analysis."""
 
     @pytest.mark.asyncio
-    async def test_automation_debugging_basic(self, mock_mcp_server):
+    async def test_automation_debugging_basic(self, tool_functions):
         """Test basic automation debugging."""
-        result = await mock_mcp_server.app.tools["debug_automation"]("automation.morning_routine")
+        result = await tool_functions["debug_automation"]("automation.morning_routine")
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -341,9 +341,9 @@ class TestAutomationDebugging:
         assert "recommendations" in result
 
     @pytest.mark.asyncio
-    async def test_automation_debugging_with_issues(self, mock_mcp_server):
+    async def test_automation_debugging_with_issues(self, tool_functions):
         """Test debugging automation with known issues."""
-        result = await mock_mcp_server.app.tools["debug_automation"]("automation.problematic")
+        result = await tool_functions["debug_automation"]("automation.problematic")
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -351,18 +351,18 @@ class TestAutomationDebugging:
         assert len(result["recommendations"]) > 0
 
     @pytest.mark.asyncio
-    async def test_automation_debugging_performance(self, mock_mcp_server):
+    async def test_automation_debugging_performance(self, tool_functions):
         """Test automation debugging performance analysis."""
-        result = await mock_mcp_server.app.tools["debug_automation"]("automation.morning_routine")
+        result = await tool_functions["debug_automation"]("automation.morning_routine")
 
         assert "performance_metrics" in result
         metrics = result["performance_metrics"]
         assert isinstance(metrics, dict)
 
     @pytest.mark.asyncio
-    async def test_automation_debugging_test_results(self, mock_mcp_server):
+    async def test_automation_debugging_test_results(self, tool_functions):
         """Test automation debugging test execution."""
-        result = await mock_mcp_server.app.tools["debug_automation"]("automation.morning_routine")
+        result = await tool_functions["debug_automation"]("automation.morning_routine")
 
         assert "test_results" in result
         test_results = result["test_results"]
@@ -374,9 +374,9 @@ class TestPatternAnalysis:
     """Test pattern analysis and learning features."""
 
     @pytest.mark.asyncio
-    async def test_pattern_analysis_weekly(self, mock_mcp_server):
+    async def test_pattern_analysis_weekly(self, tool_functions):
         """Test weekly pattern analysis."""
-        result = await mock_mcp_server.app.tools["analyze_home_patterns"](days=7)
+        result = await tool_functions["analyze_home_patterns"](days=7)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -386,9 +386,9 @@ class TestPatternAnalysis:
         assert "efficiency_score" in result
 
     @pytest.mark.asyncio
-    async def test_pattern_analysis_monthly(self, mock_mcp_server):
+    async def test_pattern_analysis_monthly(self, tool_functions):
         """Test monthly pattern analysis."""
-        result = await mock_mcp_server.app.tools["analyze_home_patterns"](days=30)
+        result = await tool_functions["analyze_home_patterns"](days=30)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -396,9 +396,9 @@ class TestPatternAnalysis:
         assert len(result["insights"]) > 0
 
     @pytest.mark.asyncio
-    async def test_pattern_analysis_insights(self, mock_mcp_server):
+    async def test_pattern_analysis_insights(self, tool_functions):
         """Test pattern analysis insights generation."""
-        result = await mock_mcp_server.app.tools["analyze_home_patterns"](days=7)
+        result = await tool_functions["analyze_home_patterns"](days=7)
 
         insights = result["insights"]
         assert isinstance(insights, list)
@@ -411,9 +411,9 @@ class TestPatternAnalysis:
         assert has_actionable, "Insights should be actionable"
 
     @pytest.mark.asyncio
-    async def test_pattern_analysis_recommendations(self, mock_mcp_server):
+    async def test_pattern_analysis_recommendations(self, tool_functions):
         """Test pattern analysis recommendations."""
-        result = await mock_mcp_server.app.tools["analyze_home_patterns"](days=14)
+        result = await tool_functions["analyze_home_patterns"](days=14)
 
         # Should generate specific recommendations
         assert "recommendations" in result or "insights" in result
@@ -423,7 +423,7 @@ class TestSecurityPerformance:
     """Test security system performance and reliability."""
 
     @pytest.mark.asyncio
-    async def test_security_response_time(self, mock_mcp_server):
+    async def test_security_response_time(self, tool_functions):
         """Test security system response time."""
         import time
 
@@ -433,19 +433,19 @@ class TestSecurityPerformance:
             zones=["all"],
             ai_anomaly_detection=True
         )
-        result = await mock_mcp_server.app.tools["security_monitoring"](request)
+        result = await tool_functions["security_monitoring"](request)
         response_time = time.time() - start_time
 
         assert result["success"] is True
         assert response_time < 2.0  # Security should respond quickly
 
     @pytest.mark.asyncio
-    async def test_emergency_response_reliability(self, mock_mcp_server):
+    async def test_emergency_response_reliability(self, tool_functions):
         """Test emergency response reliability under load."""
         # Execute multiple emergency responses
         tasks = []
         for i in range(3):
-            task = mock_mcp_server.app.tools["emergency_response"](f"emergency_{i}")
+            task = tool_functions["emergency_response"](f"emergency_{i}")
             tasks.append(task)
 
         results = await asyncio.gather(*tasks)
@@ -457,7 +457,7 @@ class TestSecurityPerformance:
             assert result["execution_time_seconds"] < 3.0
 
     @pytest.mark.asyncio
-    async def test_energy_optimization_safety(self, mock_mcp_server):
+    async def test_energy_optimization_safety(self, tool_functions):
         """Test that energy optimization doesn't compromise safety."""
         request = EnergyOptimizationRequest(
             mode="eco",
@@ -465,7 +465,7 @@ class TestSecurityPerformance:
             zones=["security_zones"]
         )
 
-        result = await mock_mcp_server.app.tools["energy_optimization"](request)
+        result = await tool_functions["energy_optimization"](request)
 
         assert result["success"] is True
         # Should not disable security-critical systems

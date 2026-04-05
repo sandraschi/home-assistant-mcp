@@ -15,18 +15,18 @@ from home_assistant_mcp.mcp.tools import (
     register_all_ha_tools
 )
 
-from .conftest import (
+from conftest import (
     assert_conversational_response,
     assert_orchestration_result
 )
-from .fixtures.sample_data import SAMPLE_ORCHESTRATION_SCENARIOS
+from fixtures.sample_data import SAMPLE_ORCHESTRATION_SCENARIOS
 
 
 class TestAutonomousOrchestration:
     """Test autonomous orchestration with FastMCP sampling."""
 
     @pytest.mark.asyncio
-    async def test_movie_night_orchestration(self, mock_mcp_server, orchestration_tester, sampling_validator):
+    async def test_movie_night_orchestration(self, tool_functions, orchestration_tester, sampling_validator):
         """Test complete movie night orchestration scenario."""
         # Setup orchestration tester
         orchestration_tester.add_step(
@@ -59,7 +59,7 @@ class TestAutonomousOrchestration:
 
         sampling_validator.record_sampling_event("orchestration_start", {"goal": request.goal})
 
-        result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+        result = await tool_functions["smart_home_orchestration"](request)
 
         sampling_validator.record_sampling_event("orchestration_complete", {"result": result})
 
@@ -76,7 +76,7 @@ class TestAutonomousOrchestration:
         assert validation["steps_match"]
 
     @pytest.mark.asyncio
-    async def test_morning_routine_orchestration(self, mock_mcp_server):
+    async def test_morning_routine_orchestration(self, tool_functions):
         """Test morning routine orchestration with predictive elements."""
         request = SmartHomeOrchestrationRequest(
             goal="Execute morning routine with lighting progression and climate adjustment",
@@ -84,14 +84,14 @@ class TestAutonomousOrchestration:
             learning_mode=True
         )
 
-        result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+        result = await tool_functions["smart_home_orchestration"](request)
 
         assert_orchestration_result(result, 2)
         assert "morning routine" in result["message"].lower()
         assert "learning_enabled" in result
 
     @pytest.mark.asyncio
-    async def test_security_lockdown_orchestration(self, mock_mcp_server):
+    async def test_security_lockdown_orchestration(self, tool_functions):
         """Test emergency security orchestration."""
         request = SmartHomeOrchestrationRequest(
             goal="Execute security lockdown - arm system, secure premises, send alerts",
@@ -99,14 +99,14 @@ class TestAutonomousOrchestration:
             safety_mode=True
         )
 
-        result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+        result = await tool_functions["smart_home_orchestration"](request)
 
         assert_orchestration_result(result, 2)
         assert "security" in result["message"].lower()
         assert result["execution_time_seconds"] < 3.0  # Should be fast for security
 
     @pytest.mark.asyncio
-    async def test_energy_optimization_orchestration(self, mock_mcp_server):
+    async def test_energy_optimization_orchestration(self, tool_functions):
         """Test energy optimization orchestration."""
         request = SmartHomeOrchestrationRequest(
             goal="Optimize energy usage across all zones for efficiency",
@@ -114,7 +114,7 @@ class TestAutonomousOrchestration:
             safety_mode=True
         )
 
-        result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+        result = await tool_functions["smart_home_orchestration"](request)
 
         assert_orchestration_result(result, 2)
         assert "energy" in result["message"].lower()
@@ -125,9 +125,9 @@ class TestNaturalLanguageControl:
     """Test conversational AI natural language processing."""
 
     @pytest.mark.asyncio
-    async def test_simple_light_command(self, mock_mcp_server):
+    async def test_simple_light_command(self, tool_functions):
         """Test simple natural language light control."""
-        result = await mock_mcp_server.app.tools["natural_language_control"](
+        result = await tool_functions["natural_language_control"](
             "Turn on the living room lights"
         )
 
@@ -138,20 +138,20 @@ class TestNaturalLanguageControl:
         assert "light.living_room" in result["parsed_actions"][0]["entities"]
 
     @pytest.mark.asyncio
-    async def test_complex_multi_action_command(self, mock_mcp_server):
+    async def test_complex_multi_action_command(self, tool_functions):
         """Test complex natural language command with multiple actions."""
         command = "Make it cozy in here - dim the lights and set the temperature to 72 degrees"
 
-        result = await mock_mcp_server.app.tools["natural_language_control"](command)
+        result = await tool_functions["natural_language_control"](command)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert len(result["parsed_actions"]) >= 2  # Should parse multiple actions
 
     @pytest.mark.asyncio
-    async def test_automation_trigger_command(self, mock_mcp_server):
+    async def test_automation_trigger_command(self, tool_functions):
         """Test natural language automation triggering."""
-        result = await mock_mcp_server.app.tools["natural_language_control"](
+        result = await tool_functions["natural_language_control"](
             "Start the morning routine automation"
         )
 
@@ -160,9 +160,9 @@ class TestNaturalLanguageControl:
         assert "automation" in result["message"].lower()
 
     @pytest.mark.asyncio
-    async def test_query_command(self, mock_mcp_server):
+    async def test_query_command(self, tool_functions):
         """Test natural language query commands."""
-        result = await mock_mcp_server.app.tools["natural_language_control"](
+        result = await tool_functions["natural_language_control"](
             "What's the current temperature in the living room?"
         )
 
@@ -171,9 +171,9 @@ class TestNaturalLanguageControl:
         assert "temperature" in result["message"].lower()
 
     @pytest.mark.asyncio
-    async def test_ambiguous_command_handling(self, mock_mcp_server):
+    async def test_ambiguous_command_handling(self, tool_functions):
         """Test handling of ambiguous or unclear commands."""
-        result = await mock_mcp_server.app.tools["natural_language_control"](
+        result = await tool_functions["natural_language_control"](
             "Do something with the lights maybe"
         )
 
@@ -188,9 +188,9 @@ class TestPredictiveAutomation:
     """Test predictive automation and learning features."""
 
     @pytest.mark.asyncio
-    async def test_commute_prediction(self, mock_mcp_server):
+    async def test_commute_prediction(self, tool_functions):
         """Test commute-based predictive automation."""
-        result = await mock_mcp_server.app.tools["predictive_automation"](
+        result = await tool_functions["predictive_automation"](
             "prepare for my return home from work",
             timeframe_minutes=30
         )
@@ -202,9 +202,9 @@ class TestPredictiveAutomation:
         assert result["timeframe_minutes"] == 30
 
     @pytest.mark.asyncio
-    async def test_meal_preparation_prediction(self, mock_mcp_server):
+    async def test_meal_preparation_prediction(self, tool_functions):
         """Test meal preparation predictive automation."""
-        result = await mock_mcp_server.app.tools["predictive_automation"](
+        result = await tool_functions["predictive_automation"](
             "prepare dinner based on cooking time and preferences",
             timeframe_minutes=60
         )
@@ -215,9 +215,9 @@ class TestPredictiveAutomation:
         assert len(result["predicted_events"]) > 0
 
     @pytest.mark.asyncio
-    async def test_sleep_routine_prediction(self, mock_mcp_server):
+    async def test_sleep_routine_prediction(self, tool_functions):
         """Test sleep routine predictive automation."""
-        result = await mock_mcp_server.app.tools["predictive_automation"](
+        result = await tool_functions["predictive_automation"](
             "prepare for bedtime routine",
             timeframe_minutes=45
         )
@@ -227,9 +227,9 @@ class TestPredictiveAutomation:
         assert "bedtime" in result["message"].lower() or "sleep" in result["message"].lower()
 
     @pytest.mark.asyncio
-    async def test_prediction_confidence_filtering(self, mock_mcp_server):
+    async def test_prediction_confidence_filtering(self, tool_functions):
         """Test that low-confidence predictions are filtered out."""
-        result = await mock_mcp_server.app.tools["predictive_automation"](
+        result = await tool_functions["predictive_automation"](
             "predict something unlikely to happen",
             timeframe_minutes=10
         )
@@ -245,9 +245,9 @@ class TestMultiZoneOrchestration:
     """Test multi-zone orchestration capabilities."""
 
     @pytest.mark.asyncio
-    async def test_party_mode_orchestration(self, mock_mcp_server):
+    async def test_party_mode_orchestration(self, tool_functions):
         """Test party mode across multiple zones."""
-        result = await mock_mcp_server.app.tools["multi_zone_orchestration"](
+        result = await tool_functions["multi_zone_orchestration"](
             zones=["living_room", "dining_room", "kitchen"],
             scenario="party_mode"
         )
@@ -259,9 +259,9 @@ class TestMultiZoneOrchestration:
         assert result["zones_coordinated"] == 3
 
     @pytest.mark.asyncio
-    async def test_movie_night_zones(self, mock_mcp_server):
+    async def test_movie_night_zones(self, tool_functions):
         """Test movie night orchestration across zones."""
-        result = await mock_mcp_server.app.tools["multi_zone_orchestration"](
+        result = await tool_functions["multi_zone_orchestration"](
             zones=["living_room", "kitchen"],
             scenario="movie_night"
         )
@@ -272,9 +272,9 @@ class TestMultiZoneOrchestration:
         assert result["actions_completed"] > 0
 
     @pytest.mark.asyncio
-    async def test_security_lockdown_zones(self, mock_mcp_server):
+    async def test_security_lockdown_zones(self, tool_functions):
         """Test security lockdown across zones."""
-        result = await mock_mcp_server.app.tools["multi_zone_orchestration"](
+        result = await tool_functions["multi_zone_orchestration"](
             zones=["perimeter", "interior"],
             scenario="security_lockdown"
         )
@@ -289,7 +289,7 @@ class TestSmartScheduleCreation:
     """Test intelligent schedule creation."""
 
     @pytest.mark.asyncio
-    async def test_morning_routine_schedule(self, mock_mcp_server):
+    async def test_morning_routine_schedule(self, tool_functions):
         """Test morning routine schedule creation."""
         activities = [
             "gentle_wake_up_lighting",
@@ -297,7 +297,7 @@ class TestSmartScheduleCreation:
             "work_environment_setup"
         ]
 
-        result = await mock_mcp_server.app.tools["create_smart_schedule"](
+        result = await tool_functions["create_smart_schedule"](
             name="morning_routine",
             activities=activities
         )
@@ -310,7 +310,7 @@ class TestSmartScheduleCreation:
         assert "automations_created" in result
 
     @pytest.mark.asyncio
-    async def test_workday_productivity_schedule(self, mock_mcp_server):
+    async def test_workday_productivity_schedule(self, tool_functions):
         """Test workday productivity schedule."""
         activities = [
             "focus_lighting",
@@ -318,7 +318,7 @@ class TestSmartScheduleCreation:
             "break_reminders"
         ]
 
-        result = await mock_mcp_server.app.tools["create_smart_schedule"](
+        result = await tool_functions["create_smart_schedule"](
             name="workday_productivity",
             activities=activities
         )
@@ -332,7 +332,7 @@ class TestSamplingCapabilities:
     """Test FastMCP 2.14.3 sampling capabilities."""
 
     @pytest.mark.asyncio
-    async def test_sampling_workflow_execution(self, mock_mcp_server, sampling_validator):
+    async def test_sampling_workflow_execution(self, tool_functions, sampling_validator):
         """Test that sampling enables efficient multi-step workflows."""
         # Record sampling events
         sampling_validator.record_sampling_event("workflow_start", {"type": "orchestration"})
@@ -344,7 +344,7 @@ class TestSamplingCapabilities:
             safety_mode=True
         )
 
-        result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+        result = await tool_functions["smart_home_orchestration"](request)
 
         sampling_validator.record_sampling_event("workflow_complete", {"success": result["success"]})
 
@@ -355,7 +355,7 @@ class TestSamplingCapabilities:
         assert summary["event_types"]["workflow_complete"] == 1
 
     @pytest.mark.asyncio
-    async def test_concurrent_orchestration_limit(self, mock_mcp_server):
+    async def test_concurrent_orchestration_limit(self, tool_functions):
         """Test that orchestration respects step limits."""
         request = SmartHomeOrchestrationRequest(
             goal="Very complex orchestration with many steps",
@@ -363,13 +363,13 @@ class TestSamplingCapabilities:
             safety_mode=True
         )
 
-        result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+        result = await tool_functions["smart_home_orchestration"](request)
 
         assert_orchestration_result(result, 1)  # Should complete within limit
         assert result["execution_time_seconds"] < 10.0  # Should be reasonable time
 
     @pytest.mark.asyncio
-    async def test_safety_mode_enforcement(self, mock_mcp_server):
+    async def test_safety_mode_enforcement(self, tool_functions):
         """Test that safety mode prevents dangerous operations."""
         request = SmartHomeOrchestrationRequest(
             goal="Disable all security systems and unlock everything",
@@ -377,7 +377,7 @@ class TestSamplingCapabilities:
             safety_mode=True  # Should prevent dangerous actions
         )
 
-        result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+        result = await tool_functions["smart_home_orchestration"](request)
 
         # Safety mode should either reject dangerous requests or limit their scope
         if not result["success"]:
@@ -391,10 +391,10 @@ class TestConversationalAI:
     """Test conversational AI response quality."""
 
     @pytest.mark.asyncio
-    async def test_response_context_awareness(self, mock_mcp_server, conversational_validator):
+    async def test_response_context_awareness(self, tool_functions, conversational_validator):
         """Test that responses are contextually aware."""
         # Test successful operation
-        result1 = await mock_mcp_server.app.tools["query_entities"]()
+        result1 = await tool_functions["query_entities"]()
         validation1 = conversational_validator.validate_response(
             result1,
             ["conversational", "contextual", "successful"]
@@ -402,7 +402,7 @@ class TestConversationalAI:
         assert validation1["features_present"] == ["conversational", "contextual", "successful"]
 
         # Test error response
-        result2 = await mock_mcp_server.app.tools["query_entities"](
+        result2 = await tool_functions["query_entities"](
             entity_filter="light.nonexistent"
         )
         validation2 = conversational_validator.validate_response(
@@ -412,10 +412,10 @@ class TestConversationalAI:
         assert "conversational" in validation2["features_present"]
 
     @pytest.mark.asyncio
-    async def test_response_actionability(self, mock_mcp_server, conversational_validator):
+    async def test_response_actionability(self, tool_functions, conversational_validator):
         """Test that error responses provide actionable guidance."""
         # Trigger an error
-        result = await mock_mcp_server.app.tools["control_light_advanced"](
+        result = await tool_functions["control_light_advanced"](
             entity_id="light.nonexistent",
             action="on"
         )
@@ -446,7 +446,7 @@ class TestOrchestrationPerformance:
     """Test orchestration performance characteristics."""
 
     @pytest.mark.asyncio
-    async def test_orchestration_execution_speed(self, mock_mcp_server, performance_monitor):
+    async def test_orchestration_execution_speed(self, tool_functions, performance_monitor):
         """Test that orchestrations execute within time limits."""
         performance_monitor.start_timer("orchestration_speed")
 
@@ -456,7 +456,7 @@ class TestOrchestrationPerformance:
             safety_mode=True
         )
 
-        result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+        result = await tool_functions["smart_home_orchestration"](request)
 
         performance_monitor.end_timer("orchestration_speed")
 
@@ -467,7 +467,7 @@ class TestOrchestrationPerformance:
         )
 
     @pytest.mark.asyncio
-    async def test_memory_efficiency(self, mock_mcp_server):
+    async def test_memory_efficiency(self, tool_functions):
         """Test that orchestrations don't cause memory leaks."""
         # Run multiple orchestrations in sequence
         for i in range(5):
@@ -475,7 +475,7 @@ class TestOrchestrationPerformance:
                 goal=f"Test orchestration {i}",
                 max_steps=2
             )
-            result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+            result = await tool_functions["smart_home_orchestration"](request)
             assert result["success"] is True
 
         # Memory usage should remain stable (this is a basic check)

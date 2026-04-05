@@ -18,8 +18,8 @@ from pydantic import BaseModel
 
 # Test data and fixtures
 try:
-    from .fixtures.mock_ha_api import MockHomeAssistantAPI
-    from .fixtures.sample_data import (
+    from fixtures.mock_ha_api import MockHomeAssistantAPI
+    from fixtures.sample_data import (
         SAMPLE_ENTITIES,
         SAMPLE_STATES,
         SAMPLE_AUTOMATIONS,
@@ -81,10 +81,10 @@ def mock_ha_api():
 async def mock_mcp_server(mock_ha_api):
     """Mock MCP server with FastMCP 2.14.3 features."""
     from home_assistant_mcp.mcp.server import create_mcp_server
-    from home_assistant_mcp.core.globals import set_ha_client
+    from home_assistant_mcp.core.globals import initialize_ha_client
 
     # Set up mock client
-    set_ha_client(mock_ha_api)
+    initialize_ha_client(mock_ha_api)
 
     # Create server
     server = create_mcp_server()
@@ -93,6 +93,58 @@ async def mock_mcp_server(mock_ha_api):
     server._ha_client = mock_ha_api
 
     yield server
+
+
+@pytest.fixture
+def tool_functions():
+    """Direct access to tool functions for testing."""
+    from home_assistant_mcp.mcp.tools import (
+        control_light_advanced,
+        control_climate_advanced,
+        execute_automation,
+        execute_automation_advanced,
+        activate_scene,
+        render_template,
+        control_entity,
+        query_entities,
+        get_home_status_detailed,
+        smart_home_orchestration,
+        natural_language_control,
+        predictive_automation,
+        multi_zone_orchestration,
+        create_smart_schedule,
+        security_monitoring,
+        emergency_response,
+        energy_optimization,
+        monitor_energy_usage,
+        system_maintenance_check,
+        debug_automation,
+        analyze_home_patterns,
+    )
+
+    return {
+        "control_light_advanced": control_light_advanced,
+        "control_climate_advanced": control_climate_advanced,
+        "execute_automation": execute_automation,
+        "execute_automation_advanced": execute_automation_advanced,
+        "activate_scene": activate_scene,
+        "render_template": render_template,
+        "control_entity": control_entity,
+        "query_entities": query_entities,
+        "get_home_status_detailed": get_home_status_detailed,
+        "smart_home_orchestration": smart_home_orchestration,
+        "natural_language_control": natural_language_control,
+        "predictive_automation": predictive_automation,
+        "multi_zone_orchestration": multi_zone_orchestration,
+        "create_smart_schedule": create_smart_schedule,
+        "security_monitoring": security_monitoring,
+        "emergency_response": emergency_response,
+        "energy_optimization": energy_optimization,
+        "monitor_energy_usage": monitor_energy_usage,
+        "system_maintenance_check": system_maintenance_check,
+        "debug_automation": debug_automation,
+        "analyze_home_patterns": analyze_home_patterns,
+    }
 
 
 @pytest.fixture

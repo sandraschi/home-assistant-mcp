@@ -4,7 +4,7 @@ FastMCP 3.1 MCP server and webapp for **Home Assistant**. Portmanteau tool, samp
 
 ## Features
 
-- **MCP tools**: `ha(operation=...)` — get_states, get_state, call_service, get_config, get_automations, trigger_automation. `ha_help(category)`. `ha_agentic_workflow(goal)` with SEP-1577 sampling.
+- **MCP tools**: `ha(operation=...)`  get_states, get_state, call_service, get_config, get_automations, trigger_automation. `ha_help(category)`. `ha_agentic_workflow(goal)` with SEP-1577 sampling.
 - **Prompts**: `ha_quick_start`, `ha_diagnostics`.
 - **Skills**: `skills/ha-operator.md`.
 - **REST API**: GET /api/v1/health, /api/v1/states, /api/v1/config, /api/v1/automations; POST /api/v1/services/{domain}/{service}, /api/v1/automations/trigger.
@@ -32,7 +32,7 @@ cd webapp
 .\start.ps1
 ```
 
-Set **HA_URL** (e.g. http://homeassistant.local:8123) and **HA_TOKEN** (Long-Lived Access Token from HA Profile → Long-Lived Access Tokens).
+Set **HA_URL** (e.g. http://homeassistant.local:8123) and **HA_TOKEN** (Long-Lived Access Token from HA Profile  Long-Lived Access Tokens).
 
 ## MCP client
 

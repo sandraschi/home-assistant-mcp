@@ -15,7 +15,7 @@ import os
 
 from home_assistant_mcp.mcp.tools import SmartHomeOrchestrationRequest
 
-from .conftest import assert_tool_execution_time
+from conftest import assert_tool_execution_time
 
 
 class TestResponseTimeBenchmarks:
@@ -32,15 +32,15 @@ class TestResponseTimeBenchmarks:
         }
 
     @pytest.mark.asyncio
-    async def test_query_entities_performance(self, mock_mcp_server, performance_metrics):
+    async def test_query_entities_performance(self, tool_functions, performance_metrics):
         """Benchmark query_entities response time."""
         # Warm up
-        await mock_mcp_server.app.tools["query_entities"]()
+        await tool_functions["query_entities"]()
 
         # Benchmark
         for i in range(10):
             start_time = time.time()
-            result = await mock_mcp_server.app.tools["query_entities"]()
+            result = await tool_functions["query_entities"]()
             end_time = time.time()
 
             assert result["success"] is True
@@ -60,7 +60,7 @@ class TestResponseTimeBenchmarks:
         assert p95_response_time < 0.2, f"P95 response time {p95_response_time:.3f}s exceeds 200ms"
 
     @pytest.mark.asyncio
-    async def test_light_control_performance(self, mock_mcp_server):
+    async def test_light_control_performance(self, tool_functions):
         """Benchmark light control response time."""
         response_times = []
 
@@ -69,7 +69,7 @@ class TestResponseTimeBenchmarks:
             start_time = time.time()
 
             from home_assistant_mcp.mcp.tools import LightControlRequest
-            result = await mock_mcp_server.app.tools["control_light_advanced"](
+            result = await tool_functions["control_light_advanced"](
                 LightControlRequest(
                     entity_id="light.living_room",
                     action="toggle"
@@ -85,7 +85,7 @@ class TestResponseTimeBenchmarks:
         assert avg_time < 0.5, f"Light control avg time {avg_time:.3f}s exceeds 500ms"
 
     @pytest.mark.asyncio
-    async def test_orchestration_performance(self, mock_mcp_server):
+    async def test_orchestration_performance(self, tool_functions):
         """Benchmark orchestration performance."""
         orchestration_times = []
 
@@ -97,7 +97,7 @@ class TestResponseTimeBenchmarks:
                 max_steps=3
             )
 
-            result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+            result = await tool_functions["smart_home_orchestration"](request)
             end_time = time.time()
 
             assert result["success"] is True
@@ -115,10 +115,10 @@ class TestLoadTesting:
     """Load testing for concurrent operations."""
 
     @pytest.mark.asyncio
-    async def test_concurrent_queries(self, mock_mcp_server):
+    async def test_concurrent_queries(self, tool_functions):
         """Test concurrent entity queries."""
         async def single_query():
-            result = await mock_mcp_server.app.tools["query_entities"]()
+            result = await tool_functions["query_entities"]()
             return result["success"]
 
         # Execute 20 concurrent queries
@@ -138,25 +138,25 @@ class TestLoadTesting:
         assert total_time < 5.0, f"Total concurrent execution {total_time:.3f}s too slow"
 
     @pytest.mark.asyncio
-    async def test_mixed_workload_performance(self, mock_mcp_server):
+    async def test_mixed_workload_performance(self, tool_functions):
         """Test mixed workload performance."""
         operations = []
 
         # Mix of different operation types
         async def run_query():
-            result = await mock_mcp_server.app.tools["query_entities"]()
+            result = await tool_functions["query_entities"]()
             return ("query", result["success"], time.time())
 
         async def run_light_control():
             from home_assistant_mcp.mcp.tools import LightControlRequest
-            result = await mock_mcp_server.app.tools["control_light_advanced"](
+            result = await tool_functions["control_light_advanced"](
                 LightControlRequest(entity_id="light.living_room", action="toggle")
             )
             return ("light", result["success"], time.time())
 
         async def run_orchestration():
             request = SmartHomeOrchestrationRequest(goal="Quick test", max_steps=2)
-            result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+            result = await tool_functions["smart_home_orchestration"](request)
             return ("orchestration", result["success"], time.time())
 
         # Execute mixed workload
@@ -188,7 +188,7 @@ class TestLoadTesting:
         assert avg_time_per_operation < 1.0, f"Avg operation time {avg_time_per_operation:.3f}s too slow"
 
     @pytest.mark.asyncio
-    async def test_memory_usage_under_load(self, mock_mcp_server):
+    async def test_memory_usage_under_load(self, tool_functions):
         """Test memory usage during load."""
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024  # MB
 
@@ -196,15 +196,15 @@ class TestLoadTesting:
         tasks = []
         for i in range(50):
             if i % 3 == 0:
-                task = mock_mcp_server.app.tools["query_entities"]()
+                task = tool_functions["query_entities"]()
             elif i % 3 == 1:
                 from home_assistant_mcp.mcp.tools import LightControlRequest
-                task = mock_mcp_server.app.tools["control_light_advanced"](
+                task = tool_functions["control_light_advanced"](
                     LightControlRequest(entity_id="light.living_room", action="toggle")
                 )
             else:
                 request = SmartHomeOrchestrationRequest(goal=f"Load test {i}", max_steps=2)
-                task = mock_mcp_server.app.tools["smart_home_orchestration"](request)
+                task = tool_functions["smart_home_orchestration"](request)
             tasks.append(task)
 
         await asyncio.gather(*tasks)
@@ -220,11 +220,11 @@ class TestScalabilityTesting:
     """Test scalability characteristics."""
 
     @pytest.mark.asyncio
-    async def test_entity_count_scalability(self, mock_mcp_server):
+    async def test_entity_count_scalability(self, tool_functions):
         """Test performance with varying entity counts."""
         # This would test with different numbers of entities
         # For now, test with current mock data
-        result = await mock_mcp_server.app.tools["query_entities"]()
+        result = await tool_functions["query_entities"]()
         assert result["success"] is True
 
         # Should handle current entity count efficiently
@@ -232,7 +232,7 @@ class TestScalabilityTesting:
         assert "entities" in result
 
     @pytest.mark.asyncio
-    async def test_orchestration_complexity_scaling(self, mock_mcp_server):
+    async def test_orchestration_complexity_scaling(self, tool_functions):
         """Test orchestration performance with increasing complexity."""
         complexity_levels = [2, 3, 5, 8]  # max_steps
         execution_times = []
@@ -245,7 +245,7 @@ class TestScalabilityTesting:
                 max_steps=complexity
             )
 
-            result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+            result = await tool_functions["smart_home_orchestration"](request)
             end_time = time.time()
 
             assert result["success"] is True
@@ -262,7 +262,7 @@ class TestResourceEfficiency:
     """Test resource usage efficiency."""
 
     @pytest.mark.asyncio
-    async def test_cpu_usage_during_operations(self, mock_mcp_server):
+    async def test_cpu_usage_during_operations(self, tool_functions):
         """Test CPU usage during intensive operations."""
         # Baseline CPU
         baseline_cpu = psutil.cpu_percent(interval=0.1)
@@ -275,7 +275,7 @@ class TestResourceEfficiency:
                 goal=f"CPU test {i}",
                 max_steps=5
             )
-            tasks.append(mock_mcp_server.app.tools["smart_home_orchestration"](request))
+            tasks.append(tool_functions["smart_home_orchestration"](request))
 
         await asyncio.gather(*tasks)
         end_time = time.time()
@@ -293,7 +293,7 @@ class TestResourceEfficiency:
         assert cpu_time_ratio < execution_time * 2, "CPU usage inefficient"
 
     @pytest.mark.asyncio
-    async def test_idle_resource_usage(self, mock_mcp_server):
+    async def test_idle_resource_usage(self, tool_functions):
         """Test resource usage when idle."""
         # Let system settle
         await asyncio.sleep(0.5)
@@ -310,12 +310,12 @@ class TestReliabilityTesting:
     """Test system reliability under various conditions."""
 
     @pytest.mark.asyncio
-    async def test_operation_consistency(self, mock_mcp_server):
+    async def test_operation_consistency(self, tool_functions):
         """Test that operations produce consistent results."""
         # Run same operation multiple times
         results = []
         for i in range(5):
-            result = await mock_mcp_server.app.tools["query_entities"]()
+            result = await tool_functions["query_entities"]()
             results.append(result)
 
         # All results should be consistent
@@ -326,13 +326,13 @@ class TestReliabilityTesting:
             assert len(result["entities"]) == len(first_result["entities"])
 
     @pytest.mark.asyncio
-    async def test_error_recovery_consistency(self, mock_mcp_server):
+    async def test_error_recovery_consistency(self, tool_functions):
         """Test that error recovery is consistent."""
         error_results = []
 
         # Trigger same error multiple times
         for i in range(3):
-            result = await mock_mcp_server.app.tools["query_entities"](entity_id="invalid")
+            result = await tool_functions["query_entities"](entity_id="invalid")
             error_results.append(result)
 
         # All errors should be handled consistently
@@ -343,7 +343,7 @@ class TestReliabilityTesting:
             assert "❌" in result["message"]
 
     @pytest.mark.asyncio
-    async def test_concurrent_operation_isolation(self, mock_mcp_server):
+    async def test_concurrent_operation_isolation(self, tool_functions):
         """Test that concurrent operations don't interfere with each other."""
         async def isolated_operation(op_id: int):
             # Each operation uses different entities to avoid conflicts
@@ -351,12 +351,12 @@ class TestReliabilityTesting:
 
             if op_id % 2 == 0:
                 # Query operation
-                result = await mock_mcp_server.app.tools["query_entities"]()
+                result = await tool_functions["query_entities"]()
                 return ("query", result["success"])
             else:
                 # Control operation
                 from home_assistant_mcp.mcp.tools import LightControlRequest
-                result = await mock_mcp_server.app.tools["control_light_advanced"](
+                result = await tool_functions["control_light_advanced"](
                     LightControlRequest(
                         entity_id=entities[op_id % len(entities)],
                         action="toggle"
@@ -377,7 +377,7 @@ class TestBenchmarkReporting:
     """Generate comprehensive benchmark reports."""
 
     @pytest.mark.asyncio
-    async def test_performance_report_generation(self, mock_mcp_server):
+    async def test_performance_report_generation(self, tool_functions):
         """Test that performance reports can be generated."""
         # Run various operations to collect data
         operations = []
@@ -385,7 +385,7 @@ class TestBenchmarkReporting:
         # Quick operations
         for i in range(5):
             start = time.time()
-            result = await mock_mcp_server.app.tools["query_entities"]()
+            result = await tool_functions["query_entities"]()
             end = time.time()
             operations.append(("query", end - start, result["success"]))
 
@@ -393,7 +393,7 @@ class TestBenchmarkReporting:
         for i in range(3):
             start = time.time()
             request = SmartHomeOrchestrationRequest(goal=f"Benchmark {i}", max_steps=3)
-            result = await mock_mcp_server.app.tools["smart_home_orchestration"](request)
+            result = await tool_functions["smart_home_orchestration"](request)
             end = time.time()
             operations.append(("orchestration", end - start, result["success"]))
 

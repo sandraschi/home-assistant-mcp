@@ -16,7 +16,7 @@ from home_assistant_mcp.mcp.tools import (
     ClimateControlRequest, TemplateRenderRequest
 )
 
-from .conftest import (
+from conftest import (
     assert_conversational_response,
     assert_tool_execution_time,
     create_mock_entity
@@ -27,12 +27,12 @@ class TestEntityDiscovery:
     """Test entity discovery and querying tools."""
 
     @pytest.mark.asyncio
-    async def test_query_entities_basic(self, mock_mcp_server, performance_monitor):
+    async def test_query_entities_basic(self, tool_functions, performance_monitor):
         """Test basic entity querying without filters."""
         performance_monitor.start_timer("query_entities_basic")
 
         # Execute tool
-        result = await mock_mcp_server.app.tools["query_entities"]()
+        result = await tool_functions["query_entities"]()
 
         performance_monitor.end_timer("query_entities_basic")
 
@@ -51,22 +51,22 @@ class TestEntityDiscovery:
         assert_tool_execution_time(metrics["query_entities_basic"]["duration"], 0.1)
 
     @pytest.mark.asyncio
-    async def test_query_entities_with_filter(self, mock_mcp_server):
+    async def test_query_entities_with_filter(self, tool_functions):
         """Test entity querying with domain filter."""
         filter_obj = EntityFilter(domain="light")
 
-        result = await mock_mcp_server.app.tools["query_entities"](filter_obj)
+        result = await tool_functions["query_entities"](filter_obj)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert all(entity["entity_id"].startswith("light.") for entity in result["entities"])
 
     @pytest.mark.asyncio
-    async def test_query_entities_specific_entity(self, mock_mcp_server):
+    async def test_query_entities_specific_entity(self, tool_functions):
         """Test querying a specific entity."""
         filter_obj = EntityFilter(entity_id="light.living_room")
 
-        result = await mock_mcp_server.app.tools["query_entities"](filter_obj)
+        result = await tool_functions["query_entities"](filter_obj)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -74,22 +74,22 @@ class TestEntityDiscovery:
         assert result["entities"][0]["entity_id"] == "light.living_room"
 
     @pytest.mark.asyncio
-    async def test_query_entities_not_found(self, mock_mcp_server):
+    async def test_query_entities_not_found(self, tool_functions):
         """Test querying non-existent entity."""
         filter_obj = EntityFilter(entity_id="light.nonexistent")
 
-        result = await mock_mcp_server.app.tools["query_entities"](filter_obj)
+        result = await tool_functions["query_entities"](filter_obj)
 
         assert_conversational_response(result)
         assert result["success"] is False
         assert "not found" in result["message"].lower()
 
     @pytest.mark.asyncio
-    async def test_query_entities_friendly_name_filter(self, mock_mcp_server):
+    async def test_query_entities_friendly_name_filter(self, tool_functions):
         """Test filtering by friendly name."""
         filter_obj = EntityFilter(friendly_name="living room")
 
-        result = await mock_mcp_server.app.tools["query_entities"](filter_obj)
+        result = await tool_functions["query_entities"](filter_obj)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -100,14 +100,14 @@ class TestLightControl:
     """Test advanced light control functionality."""
 
     @pytest.mark.asyncio
-    async def test_light_control_basic_on(self, mock_mcp_server):
+    async def test_light_control_basic_on(self, tool_functions):
         """Test basic light turn on."""
         request = LightControlRequest(
             entity_id="light.living_room",
             action="on"
         )
 
-        result = await mock_mcp_server.app.tools["control_light_advanced"](request)
+        result = await tool_functions["control_light_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -115,7 +115,7 @@ class TestLightControl:
         assert result["entity_id"] == "light.living_room"
 
     @pytest.mark.asyncio
-    async def test_light_control_brightness(self, mock_mcp_server):
+    async def test_light_control_brightness(self, tool_functions):
         """Test light control with brightness."""
         request = LightControlRequest(
             entity_id="light.living_room",
@@ -123,14 +123,14 @@ class TestLightControl:
             brightness_pct=75
         )
 
-        result = await mock_mcp_server.app.tools["control_light_advanced"](request)
+        result = await tool_functions["control_light_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert "75%" in result["message"]
 
     @pytest.mark.asyncio
-    async def test_light_control_rgb_color(self, mock_mcp_server):
+    async def test_light_control_rgb_color(self, tool_functions):
         """Test light control with RGB color."""
         request = LightControlRequest(
             entity_id="light.living_room",
@@ -138,28 +138,28 @@ class TestLightControl:
             rgb_color=[255, 100, 150]  # Pink
         )
 
-        result = await mock_mcp_server.app.tools["control_light_advanced"](request)
+        result = await tool_functions["control_light_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert "[255, 100, 150]" in result["message"]
 
     @pytest.mark.asyncio
-    async def test_light_control_multiple_entities(self, mock_mcp_server):
+    async def test_light_control_multiple_entities(self, tool_functions):
         """Test controlling multiple lights simultaneously."""
         request = LightControlRequest(
             entity_id=["light.living_room", "light.bedroom"],
             action="off"
         )
 
-        result = await mock_mcp_server.app.tools["control_light_advanced"](request)
+        result = await tool_functions["control_light_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert "2" in result["message"]  # Should indicate multiple lights
 
     @pytest.mark.asyncio
-    async def test_light_control_transition(self, mock_mcp_server):
+    async def test_light_control_transition(self, tool_functions):
         """Test light control with transition time."""
         request = LightControlRequest(
             entity_id="light.living_room",
@@ -168,21 +168,21 @@ class TestLightControl:
             transition=2.5
         )
 
-        result = await mock_mcp_server.app.tools["control_light_advanced"](request)
+        result = await tool_functions["control_light_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert result["action_details"]["transition"] == 2.5
 
     @pytest.mark.asyncio
-    async def test_light_control_invalid_entity(self, mock_mcp_server):
+    async def test_light_control_invalid_entity(self, tool_functions):
         """Test light control with invalid entity."""
         request = LightControlRequest(
             entity_id="light.nonexistent",
             action="on"
         )
 
-        result = await mock_mcp_server.app.tools["control_light_advanced"](request)
+        result = await tool_functions["control_light_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is False
@@ -193,7 +193,7 @@ class TestClimateControl:
     """Test advanced climate control functionality."""
 
     @pytest.mark.asyncio
-    async def test_climate_set_temperature(self, mock_mcp_server):
+    async def test_climate_set_temperature(self, tool_functions):
         """Test setting climate temperature."""
         request = ClimateControlRequest(
             entity_id="climate.living_room",
@@ -201,14 +201,14 @@ class TestClimateControl:
             temperature=74.0
         )
 
-        result = await mock_mcp_server.app.tools["control_climate_advanced"](request)
+        result = await tool_functions["control_climate_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert "74.0°" in result["message"]
 
     @pytest.mark.asyncio
-    async def test_climate_set_hvac_mode(self, mock_mcp_server):
+    async def test_climate_set_hvac_mode(self, tool_functions):
         """Test setting HVAC mode."""
         request = ClimateControlRequest(
             entity_id="climate.living_room",
@@ -216,14 +216,14 @@ class TestClimateControl:
             hvac_mode="cool"
         )
 
-        result = await mock_mcp_server.app.tools["control_climate_advanced"](request)
+        result = await tool_functions["control_climate_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert "cool mode" in result["message"]
 
     @pytest.mark.asyncio
-    async def test_climate_multiple_entities(self, mock_mcp_server):
+    async def test_climate_multiple_entities(self, tool_functions):
         """Test controlling multiple climate entities."""
         request = ClimateControlRequest(
             entity_id=["climate.living_room", "climate.bedroom"],
@@ -231,7 +231,7 @@ class TestClimateControl:
             hvac_mode="off"
         )
 
-        result = await mock_mcp_server.app.tools["control_climate_advanced"](request)
+        result = await tool_functions["control_climate_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -241,9 +241,9 @@ class TestAutomationExecution:
     """Test automation and scene execution."""
 
     @pytest.mark.asyncio
-    async def test_execute_automation_basic(self, mock_mcp_server):
+    async def test_execute_automation_basic(self, tool_functions):
         """Test basic automation execution."""
-        result = await mock_mcp_server.app.tools["execute_automation"]("automation.morning_routine")
+        result = await tool_functions["execute_automation"]("automation.morning_routine")
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -251,7 +251,7 @@ class TestAutomationExecution:
         assert result["entity_id"] == "automation.morning_routine"
 
     @pytest.mark.asyncio
-    async def test_execute_automation_advanced(self, mock_mcp_server):
+    async def test_execute_automation_advanced(self, tool_functions):
         """Test advanced automation execution with variables."""
         from home_assistant_mcp.mcp.tools import AutomationExecutionRequest
 
@@ -260,14 +260,14 @@ class TestAutomationExecution:
             variables={"brightness": 80, "temperature": 72}
         )
 
-        result = await mock_mcp_server.app.tools["execute_automation_advanced"](request)
+        result = await tool_functions["execute_automation_advanced"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert result["execution_time_seconds"] > 0
 
     @pytest.mark.asyncio
-    async def test_activate_scene(self, mock_mcp_server):
+    async def test_activate_scene(self, tool_functions):
         """Test scene activation."""
         from home_assistant_mcp.mcp.tools import SceneActivationRequest
 
@@ -276,7 +276,7 @@ class TestAutomationExecution:
             transition=3
         )
 
-        result = await mock_mcp_server.app.tools["activate_scene"](request)
+        result = await tool_functions["activate_scene"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -288,27 +288,27 @@ class TestTemplateRendering:
     """Test Jinja2 template rendering."""
 
     @pytest.mark.asyncio
-    async def test_render_simple_template(self, mock_mcp_server):
+    async def test_render_simple_template(self, tool_functions):
         """Test rendering a simple template."""
         request = TemplateRenderRequest(
             template="Current temperature: {{ states('sensor.temperature_living_room') }}"
         )
 
-        result = await mock_mcp_server.app.tools["render_template"](request)
+        result = await tool_functions["render_template"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
         assert "current temperature" in result["result"].lower()
 
     @pytest.mark.asyncio
-    async def test_render_template_with_variables(self, mock_mcp_server):
+    async def test_render_template_with_variables(self, tool_functions):
         """Test template rendering with custom variables."""
         request = TemplateRenderRequest(
             template="Hello {{ name }}, the temperature is {{ temp }}°F",
             variables={"name": "Alice", "temp": 72}
         )
 
-        result = await mock_mcp_server.app.tools["render_template"](request)
+        result = await tool_functions["render_template"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -316,7 +316,7 @@ class TestTemplateRendering:
         assert "72°f" in result["result"].lower()
 
     @pytest.mark.asyncio
-    async def test_render_complex_template(self, mock_mcp_server):
+    async def test_render_complex_template(self, tool_functions):
         """Test complex template with conditionals and loops."""
         request = TemplateRenderRequest(
             template="""
@@ -331,7 +331,7 @@ class TestTemplateRendering:
             """
         )
 
-        result = await mock_mcp_server.app.tools["render_template"](request)
+        result = await tool_functions["render_template"](request)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -342,7 +342,7 @@ class TestErrorHandling:
     """Test comprehensive error handling."""
 
     @pytest.mark.asyncio
-    async def test_invalid_entity_reference(self, mock_mcp_server):
+    async def test_invalid_entity_reference(self, tool_functions):
         """Test handling of invalid entity references."""
         request = ServiceCallRequest(
             domain="light",
@@ -350,14 +350,14 @@ class TestErrorHandling:
             entity_id="light.invalid_entity"
         )
 
-        result = await mock_mcp_server.app.tools["control_entity"](request)
+        result = await tool_functions["control_entity"](request)
 
         assert_conversational_response(result)
         assert result["success"] is False
         assert "failed" in result["message"]
 
     @pytest.mark.asyncio
-    async def test_network_timeout_simulation(self, mock_mcp_server):
+    async def test_network_timeout_simulation(self, tool_functions):
         """Test handling of network timeouts."""
         # This would require mocking network failures
         # For now, test with invalid service call
@@ -366,19 +366,19 @@ class TestErrorHandling:
             service="invalid_service"
         )
 
-        result = await mock_mcp_server.app.tools["control_entity"](request)
+        result = await tool_functions["control_entity"](request)
 
         assert_conversational_response(result)
         assert result["success"] is False
 
     @pytest.mark.asyncio
-    async def test_template_render_error(self, mock_mcp_server):
+    async def test_template_render_error(self, tool_functions):
         """Test template rendering error handling."""
         request = TemplateRenderRequest(
             template="{{ invalid_syntax }"  # Missing closing brace
         )
 
-        result = await mock_mcp_server.app.tools["render_template"](request)
+        result = await tool_functions["render_template"](request)
 
         assert_conversational_response(result)
         assert result["success"] is False
@@ -388,14 +388,14 @@ class TestPerformance:
     """Test performance characteristics."""
 
     @pytest.mark.asyncio
-    async def test_query_performance_under_load(self, mock_mcp_server, performance_monitor):
+    async def test_query_performance_under_load(self, tool_functions, performance_monitor):
         """Test query performance with multiple concurrent requests."""
         performance_monitor.start_timer("concurrent_queries")
 
         # Execute multiple queries concurrently
         tasks = []
         for i in range(5):
-            task = mock_mcp_server.app.tools["query_entities"]()
+            task = tool_functions["query_entities"]()
             tasks.append(task)
 
         results = await asyncio.gather(*tasks)
@@ -413,7 +413,7 @@ class TestPerformance:
         assert_tool_execution_time(avg_time, 0.2)  # Allow slightly higher for concurrent load
 
     @pytest.mark.asyncio
-    async def test_light_control_response_time(self, mock_mcp_server, performance_monitor):
+    async def test_light_control_response_time(self, tool_functions, performance_monitor):
         """Test light control response time."""
         performance_monitor.start_timer("light_control_timing")
 
@@ -422,7 +422,7 @@ class TestPerformance:
             action="toggle"
         )
 
-        result = await mock_mcp_server.app.tools["control_light_advanced"](request)
+        result = await tool_functions["control_light_advanced"](request)
 
         performance_monitor.end_timer("light_control_timing")
 
@@ -437,9 +437,9 @@ class TestConversationalResponses:
     """Test conversational response formatting."""
 
     @pytest.mark.asyncio
-    async def test_success_response_format(self, mock_mcp_server):
+    async def test_success_response_format(self, tool_functions):
         """Test that success responses follow conversational guidelines."""
-        result = await mock_mcp_server.app.tools["query_entities"]()
+        result = await tool_functions["query_entities"]()
 
         # Check required conversational elements
         assert "message" in result
@@ -449,11 +449,11 @@ class TestConversationalResponses:
         assert "✅" in result["message"]
 
     @pytest.mark.asyncio
-    async def test_error_response_format(self, mock_mcp_server):
+    async def test_error_response_format(self, tool_functions):
         """Test that error responses follow conversational guidelines."""
         filter_obj = EntityFilter(entity_id="light.nonexistent")
 
-        result = await mock_mcp_server.app.tools["query_entities"](filter_obj)
+        result = await tool_functions["query_entities"](filter_obj)
 
         # Check error response elements
         assert "message" in result
@@ -464,7 +464,7 @@ class TestConversationalResponses:
         assert "error" in result
 
     @pytest.mark.asyncio
-    async def test_response_context_inclusion(self, mock_mcp_server):
+    async def test_response_context_inclusion(self, tool_functions):
         """Test that responses include relevant context."""
         request = LightControlRequest(
             entity_id="light.living_room",
@@ -472,7 +472,7 @@ class TestConversationalResponses:
             brightness_pct=80
         )
 
-        result = await mock_mcp_server.app.tools["control_light_advanced"](request)
+        result = await tool_functions["control_light_advanced"](request)
 
         # Check context inclusion
         assert "entity_id" in result
