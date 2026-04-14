@@ -6,10 +6,9 @@ Configuration management for Home Assistant MCP server.
 
 import os
 from pathlib import Path
-from typing import Optional
 
-from pydantic import BaseModel, Field, SecretStr
 import yaml
+from pydantic import BaseModel, Field, SecretStr
 
 
 class HomeAssistantConfig(BaseModel):
@@ -20,12 +19,12 @@ class HomeAssistantConfig(BaseModel):
         description="Home Assistant base URL"
     )
 
-    access_token: Optional[SecretStr] = Field(
+    access_token: SecretStr | None = Field(
         default=None,
         description="Long-lived access token for Home Assistant API"
     )
 
-    websocket_url: Optional[str] = Field(
+    websocket_url: str | None = Field(
         default=None,
         description="WebSocket URL (auto-derived from url if not specified)"
     )
@@ -68,7 +67,7 @@ class HomeAssistantConfig(BaseModel):
         if not file_path.exists():
             raise FileNotFoundError(f"Configuration file not found: {file_path}")
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         # Handle nested homeassistant config
@@ -87,7 +86,7 @@ class HomeAssistantConfig(BaseModel):
             verify_ssl=os.getenv("HA_VERIFY_SSL", "true").lower() == "true",
         )
 
-    def get_token_value(self) -> Optional[str]:
+    def get_token_value(self) -> str | None:
         """Get the actual token value (for internal use)."""
         return self.access_token.get_secret_value() if self.access_token else None
 

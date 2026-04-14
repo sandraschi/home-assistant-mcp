@@ -1,7 +1,6 @@
-import re
 
 # Read the test runner file
-with open('tests/test_runner.py', 'r', encoding='utf-8') as f:
+with open('tests/test_runner.py', encoding='utf-8') as f:
     content = f.read()
 
 # Replace emojis with plain text

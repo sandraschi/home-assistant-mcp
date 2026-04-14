@@ -2,12 +2,11 @@
 Global state management for Home Assistant MCP.
 """
 
-from typing import Optional
 
 from .ha_client import HomeAssistantClient
 
 # Global HA client instance
-_ha_client: Optional[HomeAssistantClient] = None
+_ha_client: HomeAssistantClient | None = None
 
 
 def get_ha_client() -> HomeAssistantClient:

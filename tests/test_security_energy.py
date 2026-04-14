@@ -5,20 +5,12 @@ Tests for security monitoring, emergency response, energy optimization,
 and safety-critical automation features.
 """
 
-import pytest
 import asyncio
-from typing import Dict, Any
 
-from home_assistant_mcp.mcp.tools import (
-    SecurityMonitoringRequest,
-    EnergyOptimizationRequest
-)
-
+import pytest
 from conftest import assert_conversational_response
-from fixtures.sample_data import (
-    SAMPLE_SECURITY_SCENARIOS,
-    SAMPLE_ENERGY_SCENARIOS
-)
+
+from home_assistant_mcp.mcp.tools import EnergyOptimizationRequest, SecurityMonitoringRequest
 
 
 class TestSecurityMonitoring:

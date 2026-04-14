@@ -5,21 +5,11 @@ Tests for FastMCP 2.14.3 sampling, autonomous orchestration,
 predictive automation, and conversational AI features.
 """
 
+
 import pytest
-import asyncio
-from typing import Dict, Any, List
-from unittest.mock import patch, AsyncMock
+from conftest import assert_conversational_response, assert_orchestration_result
 
-from home_assistant_mcp.mcp.tools import (
-    SmartHomeOrchestrationRequest,
-    register_all_ha_tools
-)
-
-from conftest import (
-    assert_conversational_response,
-    assert_orchestration_result
-)
-from fixtures.sample_data import SAMPLE_ORCHESTRATION_SCENARIOS
+from home_assistant_mcp.mcp.tools import SmartHomeOrchestrationRequest
 
 
 class TestAutonomousOrchestration:

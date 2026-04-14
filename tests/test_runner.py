@@ -7,16 +7,14 @@ and coverage analysis for the state-of-the-art HA MCP implementation.
 """
 
 import asyncio
+import json
+import logging
 import sys
 import time
-import logging
 from pathlib import Path
-from typing import Dict, List, Any
-import json
-import subprocess
+from typing import Any
 
 import pytest
-import pytest_asyncio
 from pytest import ExitCode
 
 
@@ -30,7 +28,7 @@ class TestRunner:
         self.coverage_data = {}
         self.logger = logging.getLogger('ha_mcp_test_runner')
 
-    async def run_all_tests(self) -> Dict[str, Any]:
+    async def run_all_tests(self) -> dict[str, Any]:
         """Run complete test suite with comprehensive reporting."""
         self.logger.info("Starting Home Assistant MCP Server Test Suite")
         self.logger.info("=" * 60)
@@ -83,7 +81,7 @@ class TestRunner:
 
         return total_results
 
-    async def run_test_suite(self, suite_name: str) -> Dict[str, Any]:
+    async def run_test_suite(self, suite_name: str) -> dict[str, Any]:
         """Run individual test suite."""
         suite_start = time.time()
 
@@ -123,7 +121,7 @@ class TestRunner:
 
         return suite_result
 
-    def calculate_quality_score(self, results: Dict[str, Any]) -> float:
+    def calculate_quality_score(self, results: dict[str, Any]) -> float:
         """Calculate overall quality score (0-100)."""
         if results["total_tests"] == 0:
             return 0.0
@@ -145,7 +143,7 @@ class TestRunner:
         total_score = base_score + suite_bonus + perf_bonus - error_penalty
         return max(0.0, min(100.0, total_score))
 
-    async def generate_final_report(self, results: Dict[str, Any]):
+    async def generate_final_report(self, results: dict[str, Any]):
         """Generate comprehensive final test report."""
         self.logger.info("\n" + "=" * 60)
         self.logger.info("SUMMARY HOME ASSISTANT MCP TEST RESULTS")

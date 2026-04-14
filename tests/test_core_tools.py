@@ -5,21 +5,17 @@ Tests for fundamental entity discovery, control, and automation tools.
 Comprehensive coverage of conversational responses and error handling.
 """
 
-import pytest
 import asyncio
-from typing import Dict, Any
-from unittest.mock import patch
 
-from home_assistant_mcp.mcp.tools import register_all_ha_tools
+import pytest
+from conftest import assert_conversational_response, assert_tool_execution_time
+
 from home_assistant_mcp.mcp.tools import (
-    EntityFilter, ServiceCallRequest, LightControlRequest,
-    ClimateControlRequest, TemplateRenderRequest
-)
-
-from conftest import (
-    assert_conversational_response,
-    assert_tool_execution_time,
-    create_mock_entity
+    ClimateControlRequest,
+    EntityFilter,
+    LightControlRequest,
+    ServiceCallRequest,
+    TemplateRenderRequest,
 )
 
 

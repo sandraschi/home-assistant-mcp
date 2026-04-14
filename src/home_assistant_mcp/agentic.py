@@ -1,8 +1,8 @@
 """Agentic workflow and sampling for Home Assistant (FastMCP 3.1 / SEP-1577)."""
 import logging
+
 from fastmcp import Context
 
-from . import client
 from .portmanteau import ha_tool
 
 logger = logging.getLogger("home-assistant-mcp.agentic")

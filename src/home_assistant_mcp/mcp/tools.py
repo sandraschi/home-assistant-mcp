@@ -18,10 +18,9 @@ Version: 0.2.0
 License: MIT
 """
 
-import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union, Literal
+from typing import Any, Literal
 
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator
@@ -42,14 +41,14 @@ class EntityFilter(BaseModel):
     Supports complex queries across domains, states, and attributes for
     precise entity discovery and management.
     """
-    domain: Optional[str] = Field(None, description="Entity domain filter (light, switch, sensor, climate, etc.)")
-    entity_id: Optional[str] = Field(None, description="Exact entity ID match")
-    state: Optional[str] = Field(None, description="Current state filter (on, off, home, etc.)")
-    friendly_name: Optional[str] = Field(None, description="Friendly name substring search")
-    area: Optional[str] = Field(None, description="Area/location filter")
-    device_class: Optional[str] = Field(None, description="Device class (motion, temperature, etc.)")
-    has_attribute: Optional[str] = Field(None, description="Filter entities with specific attribute")
-    attribute_value: Optional[str] = Field(None, description="Attribute value filter")
+    domain: str | None = Field(None, description="Entity domain filter (light, switch, sensor, climate, etc.)")
+    entity_id: str | None = Field(None, description="Exact entity ID match")
+    state: str | None = Field(None, description="Current state filter (on, off, home, etc.)")
+    friendly_name: str | None = Field(None, description="Friendly name substring search")
+    area: str | None = Field(None, description="Area/location filter")
+    device_class: str | None = Field(None, description="Device class (motion, temperature, etc.)")
+    has_attribute: str | None = Field(None, description="Filter entities with specific attribute")
+    attribute_value: str | None = Field(None, description="Attribute value filter")
 
 
 class ServiceCallRequest(BaseModel):
@@ -61,10 +60,10 @@ class ServiceCallRequest(BaseModel):
     """
     domain: str = Field(..., description="Service domain (light, switch, climate, automation, etc.)")
     service: str = Field(..., description="Service name (turn_on, turn_off, set_temperature, etc.)")
-    entity_id: Optional[Union[str, List[str]]] = Field(None, description="Target entity ID(s) - single or multiple")
-    service_data: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Service-specific parameters")
-    area_id: Optional[str] = Field(None, description="Area ID for area-based targeting")
-    device_id: Optional[str] = Field(None, description="Device ID for device-based targeting")
+    entity_id: str | list[str] | None = Field(None, description="Target entity ID(s) - single or multiple")
+    service_data: dict[str, Any] | None = Field(default_factory=dict, description="Service-specific parameters")
+    area_id: str | None = Field(None, description="Area ID for area-based targeting")
+    device_id: str | None = Field(None, description="Device ID for device-based targeting")
 
     @field_validator('entity_id')
     @classmethod
@@ -84,19 +83,19 @@ class LightControlRequest(BaseModel):
     Supports modern smart lighting features including color temperature,
     effects, transitions, and multi-zone control.
     """
-    entity_id: Union[str, List[str]] = Field(..., description="Light entity ID(s)")
+    entity_id: str | list[str] = Field(..., description="Light entity ID(s)")
     action: Literal["on", "off", "toggle", "dim", "brighten"] = Field(..., description="Light control action")
-    brightness: Optional[int] = Field(None, ge=0, le=255, description="Brightness level (0-255)")
-    brightness_pct: Optional[int] = Field(None, ge=0, le=100, description="Brightness percentage (0-100)")
-    rgb_color: Optional[List[int]] = Field(None, min_length=3, max_length=3, description="RGB color [r, g, b] (0-255)")
-    rgbw_color: Optional[List[int]] = Field(None, min_length=4, max_length=4, description="RGBW color [r, g, b, w]")
-    rgbww_color: Optional[List[int]] = Field(None, min_length=5, max_length=5, description="RGBWW color [r, g, b, cw, ww]")
-    color_temp: Optional[int] = Field(None, description="Color temperature in Kelvin (1500-10000)")
-    hs_color: Optional[List[float]] = Field(None, min_length=2, max_length=2, description="HS color [hue, saturation]")
-    xy_color: Optional[List[float]] = Field(None, min_length=2, max_length=2, description="XY color coordinates")
-    effect: Optional[str] = Field(None, description="Light effect (colorloop, random, etc.)")
-    transition: Optional[float] = Field(None, ge=0, description="Transition time in seconds")
-    flash: Optional[Literal["short", "long"]] = Field(None, description="Flash effect duration")
+    brightness: int | None = Field(None, ge=0, le=255, description="Brightness level (0-255)")
+    brightness_pct: int | None = Field(None, ge=0, le=100, description="Brightness percentage (0-100)")
+    rgb_color: list[int] | None = Field(None, min_length=3, max_length=3, description="RGB color [r, g, b] (0-255)")
+    rgbw_color: list[int] | None = Field(None, min_length=4, max_length=4, description="RGBW color [r, g, b, w]")
+    rgbww_color: list[int] | None = Field(None, min_length=5, max_length=5, description="RGBWW color [r, g, b, cw, ww]")
+    color_temp: int | None = Field(None, description="Color temperature in Kelvin (1500-10000)")
+    hs_color: list[float] | None = Field(None, min_length=2, max_length=2, description="HS color [hue, saturation]")
+    xy_color: list[float] | None = Field(None, min_length=2, max_length=2, description="XY color coordinates")
+    effect: str | None = Field(None, description="Light effect (colorloop, random, etc.)")
+    transition: float | None = Field(None, ge=0, description="Transition time in seconds")
+    flash: Literal["short", "long"] | None = Field(None, description="Flash effect duration")
 
 
 class ClimateControlRequest(BaseModel):
@@ -106,15 +105,15 @@ class ClimateControlRequest(BaseModel):
     Supports modern climate systems including multi-zone control,
     scheduling, and energy optimization.
     """
-    entity_id: Union[str, List[str]] = Field(..., description="Climate entity ID(s)")
+    entity_id: str | list[str] = Field(..., description="Climate entity ID(s)")
     action: Literal["set_temperature", "set_hvac_mode", "set_preset_mode", "turn_on", "turn_off", "set_fan_mode"] = Field(..., description="Climate control action")
-    temperature: Optional[float] = Field(None, description="Target temperature (°C or °F based on HA config)")
-    target_temp_high: Optional[float] = Field(None, description="High target temperature for range mode")
-    target_temp_low: Optional[float] = Field(None, description="Low target temperature for range mode")
-    hvac_mode: Optional[Literal["off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"]] = Field(None, description="HVAC operation mode")
-    preset_mode: Optional[str] = Field(None, description="Preset mode (home, away, boost, etc.)")
-    fan_mode: Optional[str] = Field(None, description="Fan mode (auto, low, medium, high)")
-    swing_mode: Optional[str] = Field(None, description="Swing mode (off, vertical, horizontal, both)")
+    temperature: float | None = Field(None, description="Target temperature (°C or °F based on HA config)")
+    target_temp_high: float | None = Field(None, description="High target temperature for range mode")
+    target_temp_low: float | None = Field(None, description="Low target temperature for range mode")
+    hvac_mode: Literal["off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"] | None = Field(None, description="HVAC operation mode")
+    preset_mode: str | None = Field(None, description="Preset mode (home, away, boost, etc.)")
+    fan_mode: str | None = Field(None, description="Fan mode (auto, low, medium, high)")
+    swing_mode: str | None = Field(None, description="Swing mode (off, vertical, horizontal, both)")
 
 
 class TemplateRenderRequest(BaseModel):
@@ -125,8 +124,8 @@ class TemplateRenderRequest(BaseModel):
     custom variables, and error handling.
     """
     template: str = Field(..., description="Jinja2 template string with HA state access")
-    variables: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Custom template variables")
-    timeout: Optional[int] = Field(30, ge=1, le=300, description="Template rendering timeout in seconds")
+    variables: dict[str, Any] | None = Field(default_factory=dict, description="Custom template variables")
+    timeout: int | None = Field(30, ge=1, le=300, description="Template rendering timeout in seconds")
 
 
 class AutomationExecutionRequest(BaseModel):
@@ -137,8 +136,8 @@ class AutomationExecutionRequest(BaseModel):
     conditional execution based on system state.
     """
     entity_id: str = Field(..., description="Automation entity ID")
-    variables: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Variables to pass to automation")
-    skip_condition: Optional[bool] = Field(False, description="Skip automation conditions if true")
+    variables: dict[str, Any] | None = Field(default_factory=dict, description="Variables to pass to automation")
+    skip_condition: bool | None = Field(False, description="Skip automation conditions if true")
 
 
 class SceneActivationRequest(BaseModel):
@@ -149,7 +148,7 @@ class SceneActivationRequest(BaseModel):
     and conditional activation.
     """
     entity_id: str = Field(..., description="Scene entity ID")
-    transition: Optional[int] = Field(None, ge=0, le=300, description="Transition time in seconds")
+    transition: int | None = Field(None, ge=0, le=300, description="Transition time in seconds")
 
 
 class SmartHomeOrchestrationRequest(BaseModel):
@@ -160,9 +159,9 @@ class SmartHomeOrchestrationRequest(BaseModel):
     and automatic device discovery and control sequencing.
     """
     goal: str = Field(..., description="Natural language description of desired smart home state/behavior")
-    max_steps: Optional[int] = Field(5, ge=1, le=20, description="Maximum orchestration steps")
-    safety_mode: Optional[bool] = Field(True, description="Enable safety checks and confirmations")
-    learning_mode: Optional[bool] = Field(False, description="Learn from successful orchestrations")
+    max_steps: int | None = Field(5, ge=1, le=20, description="Maximum orchestration steps")
+    safety_mode: bool | None = Field(True, description="Enable safety checks and confirmations")
+    learning_mode: bool | None = Field(False, description="Learn from successful orchestrations")
 
 
 class EnergyOptimizationRequest(BaseModel):
@@ -173,9 +172,9 @@ class EnergyOptimizationRequest(BaseModel):
     optimization based on usage patterns and preferences.
     """
     mode: Literal["eco", "comfort", "performance"] = Field(..., description="Optimization mode")
-    duration: Optional[int] = Field(3600, ge=300, description="Optimization duration in seconds")
-    learn_patterns: Optional[bool] = Field(True, description="Learn from user behavior")
-    zones: Optional[List[str]] = Field(None, description="Specific zones to optimize")
+    duration: int | None = Field(3600, ge=300, description="Optimization duration in seconds")
+    learn_patterns: bool | None = Field(True, description="Learn from user behavior")
+    zones: list[str] | None = Field(None, description="Specific zones to optimize")
 
 
 class SecurityMonitoringRequest(BaseModel):
@@ -186,9 +185,9 @@ class SecurityMonitoringRequest(BaseModel):
     detection and automated response capabilities.
     """
     mode: Literal["armed_home", "armed_away", "disarmed"] = Field(..., description="Security system mode")
-    zones: Optional[List[str]] = Field(None, description="Security zones to monitor")
-    notify_on_events: Optional[bool] = Field(True, description="Send notifications for security events")
-    ai_anomaly_detection: Optional[bool] = Field(True, description="Enable AI-powered anomaly detection")
+    zones: list[str] | None = Field(None, description="Security zones to monitor")
+    notify_on_events: bool | None = Field(True, description="Send notifications for security events")
+    ai_anomaly_detection: bool | None = Field(True, description="Enable AI-powered anomaly detection")
 
 
 # ============================================================================
@@ -198,9 +197,9 @@ class SecurityMonitoringRequest(BaseModel):
 def _format_conversational_response(
     success: bool,
     action: str,
-    details: Dict[str, Any],
+    details: dict[str, Any],
     conversational: bool = True
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Format tool responses in conversational style for better AI interaction.
 
@@ -224,7 +223,7 @@ def _format_conversational_response(
         base_response["message"] = f"✅ {action} completed successfully"
         if "entity_id" in details:
             base_response["message"] += f" for {details['entity_id']}"
-        if "new_state" in details and details["new_state"]:
+        if details.get("new_state"):
             state = details["new_state"].get("state", "unknown")
             base_response["message"] += f" (now {state})"
     elif not success:
@@ -236,8 +235,8 @@ def _format_conversational_response(
 async def _execute_with_sampling(
     mcp: FastMCP,
     orchestration_request: SmartHomeOrchestrationRequest,
-    available_tools: List[str]
-) -> Dict[str, Any]:
+    available_tools: list[str]
+) -> dict[str, Any]:
     """
     Execute autonomous orchestration using FastMCP 2.14.3 sampling capabilities.
 
@@ -302,7 +301,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
     # ------------------------------------------------------------------------
 
     @mcp.tool()
-    async def control_light_advanced(request: LightControlRequest) -> Dict[str, Any]:
+    async def control_light_advanced(request: LightControlRequest) -> dict[str, Any]:
         """
         Advanced light control with full smart lighting capabilities.
 
@@ -392,7 +391,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def control_climate_advanced(request: ClimateControlRequest) -> Dict[str, Any]:
+    async def control_climate_advanced(request: ClimateControlRequest) -> dict[str, Any]:
         """
         Advanced climate control with multi-zone HVAC management.
 
@@ -475,7 +474,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def execute_automation_advanced(request: AutomationExecutionRequest) -> Dict[str, Any]:
+    async def execute_automation_advanced(request: AutomationExecutionRequest) -> dict[str, Any]:
         """
         Advanced automation execution with variable passing and conditions.
 
@@ -536,7 +535,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def activate_scene(request: SceneActivationRequest) -> Dict[str, Any]:
+    async def activate_scene(request: SceneActivationRequest) -> dict[str, Any]:
         """
         Scene activation with smooth transitions.
 
@@ -595,7 +594,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
     # ------------------------------------------------------------------------
 
     @mcp.tool()
-    async def query_entities(filter: Optional[EntityFilter] = None) -> Dict[str, Any]:
+    async def query_entities(filter: EntityFilter | None = None) -> dict[str, Any]:
         """
         🔍 Discover and query Home Assistant entities with advanced filtering.
 
@@ -676,7 +675,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
 
             return _format_conversational_response(
                 True,
-                f"Entity discovery completed",
+                "Entity discovery completed",
                 {
                     "entities": filtered_states,
                     "count": len(filtered_states),
@@ -696,7 +695,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def control_entity(request: ServiceCallRequest) -> Dict[str, Any]:
+    async def control_entity(request: ServiceCallRequest) -> dict[str, Any]:
         """
         Control any Home Assistant entity by calling services.
 
@@ -744,7 +743,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def control_light(request: LightControlRequest) -> Dict[str, Any]:
+    async def control_light(request: LightControlRequest) -> dict[str, Any]:
         """
         Control lights with brightness and color support.
 
@@ -786,7 +785,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def control_climate(request: ClimateControlRequest) -> Dict[str, Any]:
+    async def control_climate(request: ClimateControlRequest) -> dict[str, Any]:
         """
         Control climate devices (HVAC, thermostats).
 
@@ -828,7 +827,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def execute_automation(entity_id: str) -> Dict[str, Any]:
+    async def execute_automation(entity_id: str) -> dict[str, Any]:
         """
         Execute a Home Assistant automation.
 
@@ -861,7 +860,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def execute_script(entity_id: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def execute_script(entity_id: str, variables: dict[str, Any] | None = None) -> dict[str, Any]:
         """
         Execute a Home Assistant script.
 
@@ -897,7 +896,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def get_home_status() -> Dict[str, Any]:
+    async def get_home_status() -> dict[str, Any]:
         """
         Get comprehensive Home Assistant system status.
 
@@ -939,7 +938,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def render_template(request: TemplateRenderRequest) -> Dict[str, Any]:
+    async def render_template(request: TemplateRenderRequest) -> dict[str, Any]:
         """
         Render Jinja2 templates with Home Assistant data.
 
@@ -979,7 +978,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def get_available_events() -> Dict[str, Any]:
+    async def get_available_events() -> dict[str, Any]:
         """
         Get list of available Home Assistant events.
 
@@ -1012,7 +1011,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
     # ------------------------------------------------------------------------
 
     @mcp.tool()
-    async def smart_home_orchestration(request: SmartHomeOrchestrationRequest) -> Dict[str, Any]:
+    async def smart_home_orchestration(request: SmartHomeOrchestrationRequest) -> dict[str, Any]:
         """
         Autonomous smart home orchestration with AI planning.
 
@@ -1042,7 +1041,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
         return await _execute_with_sampling(mcp, request, available_tools)
 
     @mcp.tool()
-    async def analyze_home_patterns(days: int = 7) -> Dict[str, Any]:
+    async def analyze_home_patterns(days: int = 7) -> dict[str, Any]:
         """
         AI-powered home usage pattern analysis.
 
@@ -1108,7 +1107,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
     # ------------------------------------------------------------------------
 
     @mcp.tool()
-    async def get_home_status_detailed() -> Dict[str, Any]:
+    async def get_home_status_detailed() -> dict[str, Any]:
         """
         📈 Comprehensive home status with AI insights.
 
@@ -1182,7 +1181,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def monitor_energy_usage(hours: int = 24) -> Dict[str, Any]:
+    async def monitor_energy_usage(hours: int = 24) -> dict[str, Any]:
         """
         Real-time energy monitoring and analysis.
 
@@ -1256,7 +1255,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
     # ------------------------------------------------------------------------
 
     @mcp.tool()
-    async def security_monitoring(request: SecurityMonitoringRequest) -> Dict[str, Any]:
+    async def security_monitoring(request: SecurityMonitoringRequest) -> dict[str, Any]:
         """
         Advanced security system management.
 
@@ -1321,7 +1320,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def emergency_response(scenario: str) -> Dict[str, Any]:
+    async def emergency_response(scenario: str) -> dict[str, Any]:
         """
         AI-powered emergency response orchestration.
 
@@ -1374,7 +1373,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
     # ------------------------------------------------------------------------
 
     @mcp.tool()
-    async def energy_optimization(request: EnergyOptimizationRequest) -> Dict[str, Any]:
+    async def energy_optimization(request: EnergyOptimizationRequest) -> dict[str, Any]:
         """
         Intelligent energy optimization with learning.
 
@@ -1437,7 +1436,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def create_smart_schedule(name: str, activities: List[str]) -> Dict[str, Any]:
+    async def create_smart_schedule(name: str, activities: list[str]) -> dict[str, Any]:
         """
         AI-generated smart scheduling and automation.
 
@@ -1489,7 +1488,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
     # ------------------------------------------------------------------------
 
     @mcp.tool()
-    async def natural_language_control(command: str) -> Dict[str, Any]:
+    async def natural_language_control(command: str) -> dict[str, Any]:
         """
         Natural language smart home control.
 
@@ -1537,7 +1536,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def predictive_automation(anticipate: str, timeframe_minutes: int = 60) -> Dict[str, Any]:
+    async def predictive_automation(anticipate: str, timeframe_minutes: int = 60) -> dict[str, Any]:
         """
         AI predictive automation based on patterns.
 
@@ -1588,7 +1587,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def multi_zone_orchestration(zones: List[str], scenario: str) -> Dict[str, Any]:
+    async def multi_zone_orchestration(zones: list[str], scenario: str) -> dict[str, Any]:
         """
         Multi-zone smart home orchestration.
 
@@ -1642,7 +1641,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
     # ------------------------------------------------------------------------
 
     @mcp.tool()
-    async def debug_automation(entity_id: str) -> Dict[str, Any]:
+    async def debug_automation(entity_id: str) -> dict[str, Any]:
         """
         Automation debugging and analysis.
 
@@ -1688,7 +1687,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             )
 
     @mcp.tool()
-    async def system_maintenance_check() -> Dict[str, Any]:
+    async def system_maintenance_check() -> dict[str, Any]:
         """
         Comprehensive system maintenance analysis.
 

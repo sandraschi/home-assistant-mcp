@@ -1,6 +1,7 @@
 """Home Assistant REST API client (Bearer token)."""
-import os
 import logging
+import os
+
 import httpx
 
 logger = logging.getLogger("home-assistant-mcp.client")

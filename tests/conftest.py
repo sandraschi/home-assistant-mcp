@@ -6,50 +6,31 @@ conversational AI features, and autonomous orchestration testing.
 """
 
 import asyncio
-import pytest
-import pytest_asyncio
-from typing import Dict, Any, List, Optional
-from unittest.mock import AsyncMock, Mock, MagicMock
-import json
-from pathlib import Path
+from typing import Any
 
-from fastmcp import FastMCP
-from pydantic import BaseModel
+import pytest
 
 # Test data and fixtures
 try:
     from fixtures.mock_ha_api import MockHomeAssistantAPI
-    from fixtures.sample_data import (
-        SAMPLE_ENTITIES,
-        SAMPLE_STATES,
-        SAMPLE_AUTOMATIONS,
-        SAMPLE_SCENES,
-        SAMPLE_CONFIG
-    )
+    from fixtures.sample_data import SAMPLE_AUTOMATIONS, SAMPLE_CONFIG, SAMPLE_ENTITIES, SAMPLE_SCENES, SAMPLE_STATES
 except ImportError:
     # Handle case where conftest is imported directly (not by pytest)
     try:
         from fixtures.mock_ha_api import MockHomeAssistantAPI
         from fixtures.sample_data import (
-            SAMPLE_ENTITIES,
-            SAMPLE_STATES,
             SAMPLE_AUTOMATIONS,
+            SAMPLE_CONFIG,
+            SAMPLE_ENTITIES,
             SAMPLE_SCENES,
-            SAMPLE_CONFIG
+            SAMPLE_STATES,
         )
     except ImportError:
         # Fallback for when running from different directory
-        import sys
         import os
+        import sys
         sys.path.insert(0, os.path.dirname(__file__))
         from fixtures.mock_ha_api import MockHomeAssistantAPI
-        from fixtures.sample_data import (
-            SAMPLE_ENTITIES,
-            SAMPLE_STATES,
-            SAMPLE_AUTOMATIONS,
-            SAMPLE_SCENES,
-            SAMPLE_CONFIG
-        )
 
 
 @pytest.fixture(scope="session")
@@ -80,8 +61,8 @@ def mock_ha_api():
 @pytest.fixture
 async def mock_mcp_server(mock_ha_api):
     """Mock MCP server with FastMCP 2.14.3 features."""
-    from home_assistant_mcp.mcp.server import create_mcp_server
     from home_assistant_mcp.core.globals import initialize_ha_client
+    from home_assistant_mcp.mcp.server import create_mcp_server
 
     # Set up mock client
     initialize_ha_client(mock_ha_api)
@@ -99,27 +80,27 @@ async def mock_mcp_server(mock_ha_api):
 def tool_functions():
     """Direct access to tool functions for testing."""
     from home_assistant_mcp.mcp.tools import (
-        control_light_advanced,
-        control_climate_advanced,
-        execute_automation,
-        execute_automation_advanced,
         activate_scene,
-        render_template,
+        analyze_home_patterns,
+        control_climate_advanced,
         control_entity,
-        query_entities,
-        get_home_status_detailed,
-        smart_home_orchestration,
-        natural_language_control,
-        predictive_automation,
-        multi_zone_orchestration,
+        control_light_advanced,
         create_smart_schedule,
-        security_monitoring,
+        debug_automation,
         emergency_response,
         energy_optimization,
+        execute_automation,
+        execute_automation_advanced,
+        get_home_status_detailed,
         monitor_energy_usage,
+        multi_zone_orchestration,
+        natural_language_control,
+        predictive_automation,
+        query_entities,
+        render_template,
+        security_monitoring,
+        smart_home_orchestration,
         system_maintenance_check,
-        debug_automation,
-        analyze_home_patterns,
     )
 
     return {
@@ -228,7 +209,7 @@ def orchestration_tester():
             self.orchestration_steps = []
             self.mock_responses = {}
 
-        def add_step(self, step_name: str, tool_name: str, parameters: Dict[str, Any]):
+        def add_step(self, step_name: str, tool_name: str, parameters: dict[str, Any]):
             """Add an orchestration step."""
             self.orchestration_steps.append({
                 "name": step_name,
@@ -237,7 +218,7 @@ def orchestration_tester():
                 "executed": False
             })
 
-        def mock_tool_response(self, tool_name: str, response: Dict[str, Any]):
+        def mock_tool_response(self, tool_name: str, response: dict[str, Any]):
             """Mock tool response for testing."""
             self.mock_responses[tool_name] = response
 
@@ -271,7 +252,7 @@ def conversational_validator():
         def __init__(self):
             self.validations = []
 
-        def validate_response(self, response: Dict[str, Any], expected_features: List[str]):
+        def validate_response(self, response: dict[str, Any], expected_features: list[str]):
             """Validate conversational response features."""
             validation = {
                 "response": response,
@@ -288,7 +269,7 @@ def conversational_validator():
                     validation["features_present"].append("conversational")
                 elif feature == "contextual" and any(key in response for key in ["entity_id", "action", "details"]):
                     validation["features_present"].append("contextual")
-                elif feature == "actionable" and "error" in response or "suggestions" in response:
+                elif (feature == "actionable" and "error" in response) or "suggestions" in response:
                     validation["features_present"].append("actionable")
 
             # Check for common issues
@@ -322,7 +303,7 @@ def sampling_validator():
         def __init__(self):
             self.sampling_events = []
 
-        def record_sampling_event(self, event_type: str, details: Dict[str, Any]):
+        def record_sampling_event(self, event_type: str, details: dict[str, Any]):
             """Record a sampling event for validation."""
             self.sampling_events.append({
                 "type": event_type,
@@ -330,7 +311,7 @@ def sampling_validator():
                 "details": details
             })
 
-        def validate_orchestration_flow(self, expected_steps: List[str]):
+        def validate_orchestration_flow(self, expected_steps: list[str]):
             """Validate that sampling orchestration followed expected flow."""
             actual_steps = [event["type"] for event in self.sampling_events]
 
@@ -370,7 +351,7 @@ def sampling_validator():
 
 
 # Test utilities
-def assert_conversational_response(response: Dict[str, Any]):
+def assert_conversational_response(response: dict[str, Any]):
     """Assert that a response follows conversational guidelines."""
     assert "success" in response, "Response missing success field"
     assert "timestamp" in response, "Response missing timestamp"
@@ -387,7 +368,7 @@ def assert_tool_execution_time(execution_time: float, max_time: float = 1.0):
     assert execution_time <= max_time, f"Tool execution took {execution_time}s, max allowed {max_time}s"
 
 
-def assert_orchestration_result(result: Dict[str, Any], expected_steps: int):
+def assert_orchestration_result(result: dict[str, Any], expected_steps: int):
     """Assert that orchestration completed with expected structure."""
     assert "success" in result, "Orchestration result missing success field"
     assert "execution_time_seconds" in result, "Missing execution time"

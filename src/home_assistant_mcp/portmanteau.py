@@ -1,5 +1,6 @@
 """Portmanteau tool ha(operation=...) for Home Assistant (FastMCP 3.1)."""
 import logging
+
 from fastmcp import Context
 
 from . import client

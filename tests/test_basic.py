@@ -3,6 +3,7 @@ Basic tests for Home Assistant MCP server.
 """
 
 import pytest
+
 from home_assistant_mcp.core.config import HomeAssistantConfig
 from home_assistant_mcp.core.ha_client import HomeAssistantClient
 
@@ -22,6 +23,7 @@ def test_config_creation():
 def test_config_from_yaml():
     """Test loading configuration from YAML."""
     import tempfile
+
     import yaml
 
     config_data = {

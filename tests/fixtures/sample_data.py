@@ -4,7 +4,6 @@ Sample data fixtures for comprehensive testing
 Provides realistic test data for all MCP tool categories and scenarios.
 """
 
-from typing import Dict, Any, List
 
 # Sample entity data
 SAMPLE_ENTITIES = {

@@ -5,17 +5,15 @@ Comprehensive performance benchmarking, load testing, and optimization validatio
 for the state-of-the-art HA MCP implementation.
 """
 
-import pytest
 import asyncio
-import time
-import statistics
-from typing import Dict, Any, List
-import psutil
 import os
+import statistics
+import time
+
+import psutil
+import pytest
 
 from home_assistant_mcp.mcp.tools import SmartHomeOrchestrationRequest
-
-from conftest import assert_tool_execution_time
 
 
 class TestResponseTimeBenchmarks:

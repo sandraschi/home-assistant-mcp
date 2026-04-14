@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 """Home Assistant MCP Server — FastMCP 3.1, sampling, agentic workflow."""
-import os
-import sys
 import logging
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
 from fastmcp import FastMCP
 
 from . import client
-from .portmanteau import ha_tool
 from .agentic import ha_agentic_workflow
+from .portmanteau import ha_tool
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", stream=sys.stderr)
 logger = logging.getLogger("home-assistant-mcp")
@@ -56,26 +54,29 @@ mcp.tool()(ha_tool)
 mcp.tool()(ha_help)
 mcp.tool()(ha_agentic_workflow)
 
-# --- Prompts ---
-@mcp.prompt
-def ha_quick_start() -> str:
-    """Setup and connect to Home Assistant."""
-    return """You are helping set up the Home Assistant MCP server.
+# --- FastMCP Parity ---
+try:
+    from .prompts import register_prompts
+    register_prompts(mcp)
+except Exception as e:
+    logger.debug("Prompt registration skipped: %s", e)
 
-1. In Home Assistant: Profile (bottom sidebar) -> Long-Lived Access Tokens -> Create token. Copy it.
-2. Set HA_URL (e.g. http://192.168.1.50:8123) and HA_TOKEN. Start server: uv run python -m home_assistant_mcp.server --mode dual --port 10796.
-3. Open dashboard at http://localhost:10797. Use States to browse entities, Services to call services, Automations to list/trigger.
-4. From an MCP client use ha(operation='get_states') or ha(operation='call_service', domain='light', service='turn_on', entity_id='light.living_room') or ha_agentic_workflow(goal='...')."""
+try:
+    from pathlib import Path
 
+    from fastmcp.server.providers.skills import SkillsDirectoryProvider
 
-@mcp.prompt
-def ha_diagnostics() -> str:
-    """Diagnostic checklist for Home Assistant connection."""
-    return """Run a quick diagnostic:
+    roots = []
+    repo_root = Path(__file__).resolve().parents[2]
+    for rel in (".cursor/skills", "skills"):
+        rp = repo_root / rel
+        if rp.is_dir():
+            roots.append(rp)
 
-1. Call ha(operation='get_config') to verify HA connection.
-2. Call ha(operation='get_states') to list entities (or get_states with domain='light' to filter).
-3. Ensure HA_URL is reachable (e.g. http://homeassistant.local:8123 or your HA IP) and HA_TOKEN is a valid Long-Lived Access Token."""
+    if roots:
+        mcp.add_provider(SkillsDirectoryProvider(roots=roots))
+except Exception as e:
+    logger.debug("Skills provider registration skipped: %s", e)
 
 
 # --- REST ---
@@ -156,7 +157,7 @@ def main():
     import argparse
     p = argparse.ArgumentParser()
     p.add_argument("--mode", default="dual", choices=("stdio", "http", "dual"))
-    p.add_argument("--port", type=int, default=10796)
+    p.add_argument("--port", type=int, default=10782)
     args = p.parse_args()
     if args.mode == "stdio":
         from fastmcp.cli import run_stdio

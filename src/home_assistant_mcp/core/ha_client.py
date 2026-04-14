@@ -4,10 +4,11 @@ Home Assistant API Client
 Handles all communication with Home Assistant REST and WebSocket APIs.
 """
 
-import asyncio
 import json
 import logging
-from typing import Any, Dict, List, Optional, Callable
+from collections.abc import Callable
+from typing import Any
+
 import aiohttp
 import websockets
 from websockets.exceptions import ConnectionClosed
@@ -22,9 +23,9 @@ class HomeAssistantClient:
 
     def __init__(self, config: HomeAssistantConfig):
         self.config = config
-        self.session: Optional[aiohttp.ClientSession] = None
-        self.websocket: Optional[websockets.WebSocketClientProtocol] = None
-        self.event_listeners: Dict[str, List[Callable]] = {}
+        self.session: aiohttp.ClientSession | None = None
+        self.websocket: websockets.WebSocketClientProtocol | None = None
+        self.event_listeners: dict[str, list[Callable]] = {}
         self._message_id = 0
 
     async def __aenter__(self):
@@ -76,7 +77,7 @@ class HomeAssistantClient:
             logger.error(f"Connection test failed: {e}")
             return False
 
-    async def get_states(self, entity_filter: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def get_states(self, entity_filter: str | None = None) -> list[dict[str, Any]]:
         """Get all entity states, optionally filtered."""
         try:
             async with self.session.get(f"{self.config.url}/api/states") as response:
@@ -97,7 +98,7 @@ class HomeAssistantClient:
             logger.error(f"Failed to get states: {e}")
             return []
 
-    async def get_state(self, entity_id: str) -> Optional[Dict[str, Any]]:
+    async def get_state(self, entity_id: str) -> dict[str, Any] | None:
         """Get state of a specific entity."""
         try:
             async with self.session.get(f"{self.config.url}/api/states/{entity_id}") as response:
@@ -116,7 +117,7 @@ class HomeAssistantClient:
         self,
         domain: str,
         service: str,
-        entity_id: Optional[str] = None,
+        entity_id: str | None = None,
         **kwargs
     ) -> bool:
         """Call a Home Assistant service."""
@@ -138,7 +139,7 @@ class HomeAssistantClient:
             logger.error(f"Failed to call service {domain}.{service}: {e}")
             return False
 
-    async def get_config(self) -> Optional[Dict[str, Any]]:
+    async def get_config(self) -> dict[str, Any] | None:
         """Get Home Assistant configuration."""
         try:
             async with self.session.get(f"{self.config.url}/api/config") as response:
@@ -148,7 +149,7 @@ class HomeAssistantClient:
             logger.error(f"Failed to get config: {e}")
             return None
 
-    async def render_template(self, template: str, variables: Optional[Dict[str, Any]] = None) -> Optional[str]:
+    async def render_template(self, template: str, variables: dict[str, Any] | None = None) -> str | None:
         """Render a Jinja2 template."""
         try:
             data = {"template": template}
@@ -166,7 +167,7 @@ class HomeAssistantClient:
             logger.error(f"Failed to render template: {e}")
             return None
 
-    async def get_events(self) -> List[Dict[str, Any]]:
+    async def get_events(self) -> list[dict[str, Any]]:
         """Get available events."""
         try:
             async with self.session.get(f"{self.config.url}/api/events") as response:
@@ -188,8 +189,8 @@ class HomeAssistantClient:
         self,
         entity_id: str,
         action: str,
-        brightness: Optional[int] = None,
-        rgb_color: Optional[List[int]] = None,
+        brightness: int | None = None,
+        rgb_color: list[int] | None = None,
         **kwargs
     ) -> bool:
         """Control a light entity."""
@@ -217,8 +218,8 @@ class HomeAssistantClient:
         self,
         entity_id: str,
         action: str,
-        temperature: Optional[float] = None,
-        hvac_mode: Optional[str] = None,
+        temperature: float | None = None,
+        hvac_mode: str | None = None,
         **kwargs
     ) -> bool:
         """Control a climate entity."""
@@ -243,7 +244,7 @@ class HomeAssistantClient:
 
         return await self.call_service("climate", service, entity_id=entity_id, **data)
 
-    async def get_entity_info(self) -> Dict[str, Any]:
+    async def get_entity_info(self) -> dict[str, Any]:
         """Get comprehensive information about all entities."""
         states = await self.get_states()
         config = await self.get_config()

@@ -5,11 +5,8 @@ Provides realistic HA API responses for testing MCP tools without
 requiring a live HA instance.
 """
 
-import asyncio
-import json
-from typing import Dict, Any, List, Optional, Union
-from unittest.mock import AsyncMock, Mock
 import random
+from typing import Any
 
 
 class MockHomeAssistantAPI:
@@ -156,7 +153,7 @@ class MockHomeAssistantAPI:
             }
         }
 
-    async def get_states(self, entity_filter: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def get_states(self, entity_filter: str | None = None) -> list[dict[str, Any]]:
         """Get all entity states with optional filtering."""
         states = list(self.states.values())
 
@@ -167,11 +164,11 @@ class MockHomeAssistantAPI:
 
         return states
 
-    async def get_state(self, entity_id: str) -> Optional[Dict[str, Any]]:
+    async def get_state(self, entity_id: str) -> dict[str, Any] | None:
         """Get specific entity state."""
         return self.states.get(entity_id)
 
-    async def call_service(self, domain: str, service: str, entity_id: Optional[str] = None,
+    async def call_service(self, domain: str, service: str, entity_id: str | None = None,
                           **service_data) -> bool:
         """Call a HA service."""
         try:
@@ -216,7 +213,7 @@ class MockHomeAssistantAPI:
         except Exception:
             return False
 
-    async def get_entity_info(self) -> Dict[str, Any]:
+    async def get_entity_info(self) -> dict[str, Any]:
         """Get entity information summary."""
         states = list(self.states.values())
 
@@ -233,15 +230,15 @@ class MockHomeAssistantAPI:
             "available_events": ["state_changed", "automation_triggered", "service_called"]
         }
 
-    async def get_config(self) -> Dict[str, Any]:
+    async def get_config(self) -> dict[str, Any]:
         """Get HA configuration."""
         return self.config
 
-    async def get_events(self) -> List[Dict[str, Any]]:
+    async def get_events(self) -> list[dict[str, Any]]:
         """Get available events."""
         return self.events
 
-    async def render_template(self, template: str, variables: Optional[Dict[str, Any]] = None) -> Any:
+    async def render_template(self, template: str, variables: dict[str, Any] | None = None) -> Any:
         """Render Jinja2 template."""
         try:
             # Simple template rendering simulation
@@ -277,14 +274,14 @@ class MockHomeAssistantAPI:
         # Scripts are similar to automations in mock
         return await self.execute_automation(entity_id)
 
-    async def activate_scene(self, entity_id: str, transition: Optional[int] = None) -> bool:
+    async def activate_scene(self, entity_id: str, transition: int | None = None) -> bool:
         """Activate a scene."""
         if entity_id in self.states and entity_id.startswith("scene."):
             return True
         return False
 
-    async def control_light(self, entity_id: str, action: str, brightness: Optional[int] = None,
-                           rgb_color: Optional[List[int]] = None) -> bool:
+    async def control_light(self, entity_id: str, action: str, brightness: int | None = None,
+                           rgb_color: list[int] | None = None) -> bool:
         """Control a light with advanced features."""
         if entity_id in self.states and entity_id.startswith("light."):
             if action in ["on", "off", "toggle"]:
@@ -306,8 +303,8 @@ class MockHomeAssistantAPI:
                 return True
         return False
 
-    async def control_climate(self, entity_id: str, action: str, temperature: Optional[float] = None,
-                             hvac_mode: Optional[str] = None) -> bool:
+    async def control_climate(self, entity_id: str, action: str, temperature: float | None = None,
+                             hvac_mode: str | None = None) -> bool:
         """Control climate system."""
         if entity_id in self.states and entity_id.startswith("climate."):
             if action == "set_temperature" and temperature is not None:
@@ -318,7 +315,7 @@ class MockHomeAssistantAPI:
                 return True
         return False
 
-    async def analyze_patterns(self, days: int) -> Dict[str, Any]:
+    async def analyze_patterns(self, days: int) -> dict[str, Any]:
         """Analyze usage patterns (mock implementation)."""
         return {
             "peak_usage_hours": ["7-9", "18-22"],
@@ -327,7 +324,7 @@ class MockHomeAssistantAPI:
             "efficiency_score": 85
         }
 
-    async def get_energy_usage(self, hours: int) -> Dict[str, Any]:
+    async def get_energy_usage(self, hours: int) -> dict[str, Any]:
         """Get energy usage data."""
         return {
             "total_kwh": random.uniform(5.0, 15.0),
@@ -337,7 +334,7 @@ class MockHomeAssistantAPI:
             }
         }
 
-    async def get_system_health(self) -> Dict[str, Any]:
+    async def get_system_health(self) -> dict[str, Any]:
         """Get system health information."""
         return {
             "uptime_seconds": 86400,  # 1 day
@@ -347,7 +344,7 @@ class MockHomeAssistantAPI:
         }
 
     # Advanced orchestration methods
-    async def create_emergency_response(self, scenario: str) -> Dict[str, Any]:
+    async def create_emergency_response(self, scenario: str) -> dict[str, Any]:
         """Create emergency response plan."""
         return {
             "scenario": scenario,
@@ -356,7 +353,7 @@ class MockHomeAssistantAPI:
             "execution_time": 5.2
         }
 
-    async def execute_emergency_plan(self, plan: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_emergency_plan(self, plan: dict[str, Any]) -> dict[str, Any]:
         """Execute emergency response plan."""
         return {
             "success": True,
@@ -366,7 +363,7 @@ class MockHomeAssistantAPI:
         }
 
     async def start_energy_optimization(self, mode: str, duration: int,
-                                       learn_patterns: bool, zones: Optional[List[str]]) -> Dict[str, Any]:
+                                       learn_patterns: bool, zones: list[str] | None) -> dict[str, Any]:
         """Start energy optimization."""
         return {
             "mode": mode,
@@ -375,7 +372,7 @@ class MockHomeAssistantAPI:
             "estimated_savings_kwh": random.uniform(1.0, 3.0)
         }
 
-    async def get_optimization_results(self) -> Dict[str, Any]:
+    async def get_optimization_results(self) -> dict[str, Any]:
         """Get optimization results."""
         return {
             "estimated_savings_kwh": 2.1,
@@ -383,7 +380,7 @@ class MockHomeAssistantAPI:
             "efficiency_improved": True
         }
 
-    async def plan_multi_zone_orchestration(self, zones: List[str], scenario: str) -> Dict[str, Any]:
+    async def plan_multi_zone_orchestration(self, zones: list[str], scenario: str) -> dict[str, Any]:
         """Plan multi-zone orchestration."""
         zone_actions = {}
         for zone in zones:
@@ -395,7 +392,7 @@ class MockHomeAssistantAPI:
             "energy_savings": random.uniform(0.5, 1.5)
         }
 
-    async def execute_multi_zone_orchestration(self, plan: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_multi_zone_orchestration(self, plan: dict[str, Any]) -> dict[str, Any]:
         """Execute multi-zone orchestration."""
         return {
             "success": True,
@@ -404,7 +401,7 @@ class MockHomeAssistantAPI:
             "actions_completed": sum(len(actions) for actions in plan["zone_actions"].values())
         }
 
-    async def parse_natural_command(self, command: str) -> Dict[str, Any]:
+    async def parse_natural_command(self, command: str) -> dict[str, Any]:
         """Parse natural language command."""
         # Simple mock parsing
         if "light" in command.lower():
@@ -427,7 +424,7 @@ class MockHomeAssistantAPI:
                 "confidence": 0.3
             }
 
-    async def execute_natural_command(self, parsed_command: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_natural_command(self, parsed_command: dict[str, Any]) -> dict[str, Any]:
         """Execute parsed natural language command."""
         if parsed_command["intent"] == "control_light":
             success = await self.control_light(
@@ -457,7 +454,7 @@ class MockHomeAssistantAPI:
             "details": parsed_command
         }
 
-    async def generate_predictions(self, anticipate: str, timeframe: int) -> Dict[str, Any]:
+    async def generate_predictions(self, anticipate: str, timeframe: int) -> dict[str, Any]:
         """Generate predictive automation suggestions."""
         return {
             "target": anticipate,
@@ -469,7 +466,7 @@ class MockHomeAssistantAPI:
             "learning_enabled": True
         }
 
-    async def setup_predictive_automation(self, predictions: Dict[str, Any]) -> Dict[str, Any]:
+    async def setup_predictive_automation(self, predictions: dict[str, Any]) -> dict[str, Any]:
         """Setup predictive automation."""
         return {
             "automations_created": len(predictions["predictions"]),
@@ -477,7 +474,7 @@ class MockHomeAssistantAPI:
             "monitoring_active": True
         }
 
-    async def create_smart_schedule(self, name: str, activities: List[str]) -> Dict[str, Any]:
+    async def create_smart_schedule(self, name: str, activities: list[str]) -> dict[str, Any]:
         """Create smart schedule."""
         return {
             "schedule_name": name,
@@ -490,7 +487,7 @@ class MockHomeAssistantAPI:
             "automations_created": len(activities)
         }
 
-    async def debug_automation(self, entity_id: str) -> Dict[str, Any]:
+    async def debug_automation(self, entity_id: str) -> dict[str, Any]:
         """Debug automation."""
         return {
             "issues_found": ["trigger_condition", "missing_variable"],
@@ -498,7 +495,7 @@ class MockHomeAssistantAPI:
             "test_results": {"syntax_check": True, "logic_validation": False}
         }
 
-    async def perform_maintenance_check(self) -> Dict[str, Any]:
+    async def perform_maintenance_check(self) -> dict[str, Any]:
         """Perform maintenance check."""
         return {
             "overall_health": "good",

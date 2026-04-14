@@ -6,14 +6,13 @@ FastMCP-based server providing AI-powered control of Home Assistant smart home s
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional
 
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
 
-from ..core.ha_client import HomeAssistantClient
 from ..core.config import HomeAssistantConfig
-from ..core.globals import initialize_ha_client as init_global_client, get_ha_client
+from ..core.globals import get_ha_client
+from ..core.globals import initialize_ha_client as init_global_client
+from ..core.ha_client import HomeAssistantClient
 from .tools import register_all_ha_tools
 
 logger = logging.getLogger(__name__)

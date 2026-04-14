@@ -5,20 +5,15 @@ Tests end-to-end workflows, cross-tool interactions, and real-world scenarios
 to ensure the complete system works together seamlessly.
 """
 
-import pytest
 import asyncio
-from typing import Dict, Any, List
-from unittest.mock import patch, AsyncMock
+
+import pytest
+from conftest import assert_conversational_response, assert_orchestration_result
 
 from home_assistant_mcp.mcp.tools import (
-    SmartHomeOrchestrationRequest,
+    EnergyOptimizationRequest,
     SecurityMonitoringRequest,
-    EnergyOptimizationRequest
-)
-
-from conftest import (
-    assert_conversational_response,
-    assert_orchestration_result
+    SmartHomeOrchestrationRequest,
 )
 
 
