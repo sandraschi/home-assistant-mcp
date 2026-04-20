@@ -1,7 +1,7 @@
 [project]
 name = "home-assistant-mcp"
 version = "2.5.0"
-description = "Industrialized FastMCP 3.2 server for Home Assistant orchestration. SOTA v12.0 compliance."
+description = "Industrialized FastMCP 3.2.0 server for Home Assistant orchestration. SOTA v12.0 compliance."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
