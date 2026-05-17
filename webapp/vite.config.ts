@@ -5,9 +5,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   resolve: { alias: { '@': path.resolve(__dirname, './src') } },
-  server: {
-    port: 10797,
-    host: true,
+  server: {host: true,
     proxy: {
       '/api': { target: 'http://localhost:10796', changeOrigin: true },
     },
