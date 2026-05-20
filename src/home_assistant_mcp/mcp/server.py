@@ -8,6 +8,7 @@ import asyncio
 import logging
 
 from fastmcp import FastMCP
+from fastmcp.server import create_proxy
 
 from ..core.config import HomeAssistantConfig
 from ..core.globals import get_ha_client
@@ -45,6 +46,19 @@ def create_mcp_server() -> FastMCP:
         Be conversational and confirm actions when appropriate.
         """,
     )
+
+    # ── MCP Bridge (ProxyProvider) ────────────────────────────────────────────
+    _bridge_proxies: list[str] = []
+    bridge_urls = os.getenv("MCP_BRIDGE_URLS", "")
+    if bridge_urls:
+        for url in bridge_urls.split(","):
+            url = url.strip()
+            if url:
+                try:
+                    server.add_provider(create_proxy(url))
+                    _bridge_proxies.append(url)
+                except Exception:
+                    pass
 
     # Register all Home Assistant tools
     register_all_ha_tools(server)
