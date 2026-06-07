@@ -1,26 +1,23 @@
-Param([switch]$Headless)
-$SkipFrontend = $Headless
+﻿param(
+    [switch]$Headless,
+    [switch]$BackendOnly,
+    [switch]$FrontendOnly,
+    [switch]$NoBrowser
+)
 
-# --- SOTA Headless Standard ---
-if ($Headless -and ($Host.UI.RawUI.WindowTitle -notmatch 'Hidden')) {
-    Start-Process pwsh -ArgumentList '-NoProfile', '-File', $PSCommandPath, '-Headless' -WindowStyle Hidden
-    exit
-}
-$WindowStyle = if ($Headless) { 'Hidden' } else { 'Normal' }
-# ------------------------------
-
-# Webapp Start - Standardized SOTA (Auto-Repaired V2.5)
 $WebPort = 10834
 $BackendPort = 10835
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 
-# 1. Kill any process squatting on the ports
-Write-Host "Checking for port squatters on $WebPort and $BackendPort..." -ForegroundColor Yellow
-$pids = Get-NetTCPConnection -LocalPort $WebPort, $BackendPort -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -gt 4 } | Select-Object -ExpandProperty OwningProcess -Unique
-foreach ($p in $pids) {
-    Write-Host "Found squatter (PID: $p). Terminating..." -ForegroundColor Red
-    try { Stop-Process -Id $p -Force -ErrorAction Stop } catch { Write-Host "Warning: Could not terminate PID $p." -ForegroundColor Gray }
+$FleetStartPath = Join-Path $ProjectRoot "scripts\FleetStartMode.ps1"
+if (-not (Test-Path -LiteralPath $FleetStartPath)) {
+    Write-Host "ERROR: Missing vendored launcher helper: $FleetStartPath" -ForegroundColor Red
+    exit 1
 }
+. $FleetStartPath
+$FleetStart = Initialize-FleetStartMode @PSBoundParameters
+Enter-FleetHeadlessConsole -Headless:$Headless -BackendOnly:$BackendOnly
+Stop-FleetPortSquatters -Ports @($WebPort, $BackendPort) -Label "home-assistant-mcp"
 
 # 2. Setup
 Set-Location $PSScriptRoot
@@ -35,7 +32,29 @@ $backendCmd = "`$env:PYTHONPATH = '$srcPath;$PSScriptRoot'; Set-Location '$PSScr
 
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $backendCmd -WindowStyle Normal
 
+$healthUrl = "http://127.0.0.1:$BackendPort/api/v1/health"
+$maxAttempts = 30
+$attempt = 0
+$backendUp = $false
+while ($attempt -lt $maxAttempts) {
+    try {
+        $null = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop
+        $backendUp = $true
+        break
+    } catch {
+        Start-Sleep -Seconds 2
+        $attempt++
+    }
+}
+if ($backendUp) {
+    Write-Host "Backend (port $BackendPort) answered GET /api/v1/health." -ForegroundColor Green
+} else {
+    Write-Host "Backend (port $BackendPort) did not return HTTP 200 from /api/v1/health; check the backend window." -ForegroundColor Yellow
+}
+
 # 4. Run server (Vite dev)
+if (-not $FleetStart.RunFrontend) { return }
+
 Write-Host "Starting Vite frontend on port $WebPort ..." -ForegroundColor Green
 
 # 4b. Launch background task to open browser once frontend is ready (Auto-opened by Antigravity)
@@ -44,8 +63,10 @@ $pollAndOpen = "for (`$i = 0; `$i -lt 60; `$i++) { try { `$null = Invoke-WebRequ
 Start-Process powershell -ArgumentList "-NoProfile", "-WindowStyle", "Hidden", "-Command", $pollAndOpen
 
 Write-Host "Browser will open automatically when Vite is ready." -ForegroundColor Gray
-if ($SkipFrontend) { return }
+if (-not $FleetStart.RunFrontend) { return }
 npm run dev -- --port $WebPort --host
+
+
 
 
 
