@@ -1,0 +1,59 @@
+{
+  "manifest_version": "0.2",
+  "name": "home-assistant-mcp",
+  "version": "2.5.0",
+  "description": "Industrialized FastMCP 3.2.0 server for Home Assistant orchestration. SOTA v12.0 compliance.",
+  "author": { "name": "sandraschi" },
+  "server": {
+    "type": "python",
+    "entry_point": "src/home_assistant_mcp/__main__.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": ["run","--directory","${PWD}","python","-m","home_assistant_mcp"],
+      "env": {
+        "PYTHONPATH": "${PWD}/src",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  },
+  "tools": [
+    { "name": "ha_tool", "description": "ha_tool" },
+    { "name": "ha_help", "description": "ha_help" },
+    { "name": "ha_agentic_workflow", "description": "ha_agentic_workflow" },
+    { "name": "health", "description": "health" },
+    { "name": "api_states", "description": "GET all states or one entity. Query: entity_id, domain (filter)." },
+    { "name": "api_config", "description": "GET HA config." },
+    { "name": "api_call_service", "description": "POST call HA service. Body: entity_id, or other service_data." },
+    { "name": "api_automations", "description": "GET list of automation entities." },
+    { "name": "api_trigger_automation", "description": "api_trigger_automation" },
+    { "name": "main_stdio", "description": "main(stdio)" },
+    { "name": "main_http", "description": "main(http)" },
+    { "name": "main_sse", "description": "main(sse)" },
+    { "name": "control_light_advanced", "description": "control_light_advanced" },
+    { "name": "control_climate_advanced", "description": "control_climate_advanced" },
+    { "name": "execute_automation_advanced", "description": "execute_automation_advanced" },
+    { "name": "activate_scene", "description": "activate_scene" },
+    { "name": "query_entities", "description": "query_entities" },
+    { "name": "control_entity", "description": "control_entity" },
+    { "name": "control_light", "description": "control_light" },
+    { "name": "control_climate", "description": "control_climate" },
+    { "name": "execute_automation", "description": "execute_automation" },
+    { "name": "execute_script", "description": "execute_script" },
+    { "name": "get_home_status", "description": "get_home_status" },
+    { "name": "render_template", "description": "render_template" },
+    { "name": "get_available_events", "description": "get_available_events" },
+    { "name": "smart_home_orchestration", "description": "smart_home_orchestration" },
+    { "name": "analyze_home_patterns", "description": "analyze_home_patterns" },
+    { "name": "get_home_status_detailed", "description": "get_home_status_detailed" },
+    { "name": "monitor_energy_usage", "description": "monitor_energy_usage" },
+    { "name": "security_monitoring", "description": "security_monitoring" },
+    { "name": "emergency_response", "description": "emergency_response" },
+    { "name": "energy_optimization", "description": "energy_optimization" },
+    { "name": "create_smart_schedule", "description": "create_smart_schedule" },
+    { "name": "natural_language_control", "description": "natural_language_control" },
+    { "name": "predictive_automation", "description": "predictive_automation" },
+    { "name": "multi_zone_orchestration", "description": "multi_zone_orchestration" },
+    { "name": "debug_automation", "description": "debug_automation" },
+    { "name": "system_maintenance_check", "description": "system_maintenance_check" }
+  ]
+}

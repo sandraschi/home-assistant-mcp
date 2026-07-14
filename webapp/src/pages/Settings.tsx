@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Settings as SettingsIcon } from 'lucide-react'
+import { API_BASE } from '../lib/api'
 
 function LLMSettings() {
   const [providers, setProviders] = useState<Record<string, {name:string}[]>>({});
@@ -7,7 +8,7 @@ function LLMSettings() {
   const [selectedModel, setSelectedModel] = useState("");
   const [status, setStatus] = useState<"loading"|"ready"|"error">("loading");
   useEffect(() => {
-    fetch("/api/llm/providers").then(r => r.json()).then(d => {
+    fetch(API_BASE + "/api/llm/providers").then(r => r.json()).then(d => {
       setProviders(d);
       const savedP = localStorage.getItem("llm_provider") || "ollama";
       const savedM = localStorage.getItem("llm_model") || "";

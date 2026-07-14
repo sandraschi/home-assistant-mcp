@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Settings,
   Wrench,
+  ScrollText,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/common/utils";
@@ -31,6 +32,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     { href: "/status", label: "Status", icon: Activity },
     { href: "/settings", label: "Settings", icon: Settings },
     { href: "/help", label: "Help", icon: HelpCircle },
+    { href: "/logging", label: "Logging", icon: ScrollText },
   ];
 
   return (

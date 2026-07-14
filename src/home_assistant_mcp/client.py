@@ -1,4 +1,5 @@
 """Home Assistant REST API client (Bearer token)."""
+
 import logging
 import os
 

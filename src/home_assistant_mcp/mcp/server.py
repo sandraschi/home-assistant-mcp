@@ -6,6 +6,7 @@ FastMCP-based server providing AI-powered control of Home Assistant smart home s
 
 import asyncio
 import logging
+import os
 
 from fastmcp import FastMCP
 from fastmcp.server import create_proxy
@@ -58,7 +59,7 @@ def create_mcp_server() -> FastMCP:
                     server.add_provider(create_proxy(url))
                     _bridge_proxies.append(url)
                 except Exception:
-                    pass
+                    logger.warning("Failed to add MCP bridge proxy %s", url, exc_info=True)
 
     # Register all Home Assistant tools
     register_all_ha_tools(server)
@@ -96,41 +97,23 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Home Assistant MCP Server")
     parser.add_argument(
-        "--url",
-        default="http://localhost:8123",
-        help="Home Assistant URL (default: http://localhost:8123)"
+        "--url", default="http://localhost:8123", help="Home Assistant URL (default: http://localhost:8123)"
     )
-    parser.add_argument(
-        "--token",
-        help="Home Assistant long-lived access token"
-    )
-    parser.add_argument(
-        "--config-file",
-        help="Path to YAML configuration file"
-    )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable debug logging"
-    )
+    parser.add_argument("--token", help="Home Assistant long-lived access token")
+    parser.add_argument("--config-file", help="Path to YAML configuration file")
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
     args = parser.parse_args()
 
     # Setup logging
     level = logging.DEBUG if args.debug else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     # Load configuration
     if args.config_file:
         config = HomeAssistantConfig.from_yaml_file(args.config_file)
     else:
-        config = HomeAssistantConfig(
-            url=args.url,
-            access_token=args.token
-        )
+        config = HomeAssistantConfig(url=args.url, access_token=args.token)
 
     # Validate configuration
     if not config.access_token:

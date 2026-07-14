@@ -1,0 +1,14 @@
+{
+  "product_name": "Home Assistant MCP",
+  "install_dir": "%LOCALAPPDATA%\\Home Assistant MCP",
+  "operator_exe": "home-assistant-mcp-native.exe",
+  "backend_process_names": ["home-assistant-mcp-native", "home-assistant-mcp-backend"],
+  "backend_port": 10835,
+  "health_path": "/api/v1/health",
+  "diagnostics_path": "/api/v1/diagnostics",
+  "feature_smoke_path": "/api/v1/system/info",
+  "window_title_re": "Home Assistant MCP",
+  "nsis_glob": "native/target/release/bundle/nsis/Home Assistant MCP_*_x64-setup.exe",
+  "bridge_ok_text": "REST bridge reachable",
+  "uninstall_registry_filter": "*Home Assistant MCP*"
+}

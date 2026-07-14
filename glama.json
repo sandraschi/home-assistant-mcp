@@ -1,0 +1,26 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainer": "sandraschi",
+  "name": "home-assistant-mcp",
+  "version": "2.5.0",
+  "description": "Industrialized FastMCP 3.2.0 server for Home Assistant orchestration. SOTA v12.0 compliance.",
+  "categories": ["home-automation", "iot"],
+  "tools": [
+    "ha_tool", "ha_help", "ha_agentic_workflow", "health",
+    "api_states", "api_config", "api_call_service",
+    "api_automations", "api_trigger_automation",
+    "control_light_advanced", "control_climate_advanced",
+    "execute_automation_advanced", "activate_scene",
+    "query_entities", "control_entity",
+    "execute_automation", "execute_script",
+    "get_home_status", "render_template",
+    "get_available_events", "smart_home_orchestration",
+    "analyze_home_patterns", "get_home_status_detailed",
+    "monitor_energy_usage", "security_monitoring",
+    "emergency_response", "energy_optimization",
+    "create_smart_schedule", "natural_language_control",
+    "predictive_automation", "multi_zone_orchestration",
+    "debug_automation", "system_maintenance_check"
+  ],
+  "github": "https://github.com/sandraschi/home-assistant-mcp"
+}

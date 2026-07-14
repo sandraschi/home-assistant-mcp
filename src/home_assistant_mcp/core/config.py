@@ -14,40 +14,21 @@ from pydantic import BaseModel, Field, SecretStr
 class HomeAssistantConfig(BaseModel):
     """Configuration for Home Assistant MCP server."""
 
-    url: str = Field(
-        default="http://localhost:8123",
-        description="Home Assistant base URL"
-    )
+    url: str = Field(default="http://localhost:8123", description="Home Assistant base URL")
 
-    access_token: SecretStr | None = Field(
-        default=None,
-        description="Long-lived access token for Home Assistant API"
-    )
+    access_token: SecretStr | None = Field(default=None, description="Long-lived access token for Home Assistant API")
 
     websocket_url: str | None = Field(
-        default=None,
-        description="WebSocket URL (auto-derived from url if not specified)"
+        default=None, description="WebSocket URL (auto-derived from url if not specified)"
     )
 
-    timeout: float = Field(
-        default=30.0,
-        description="Request timeout in seconds"
-    )
+    timeout: float = Field(default=30.0, description="Request timeout in seconds")
 
-    verify_ssl: bool = Field(
-        default=True,
-        description="Verify SSL certificates"
-    )
+    verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
 
-    cache_ttl: int = Field(
-        default=300,
-        description="Cache TTL for entity states (seconds)"
-    )
+    cache_ttl: int = Field(default=300, description="Cache TTL for entity states (seconds)")
 
-    max_concurrent_requests: int = Field(
-        default=10,
-        description="Maximum concurrent API requests"
-    )
+    max_concurrent_requests: int = Field(default=10, description="Maximum concurrent API requests")
 
     def __init__(self, **data):
         super().__init__(**data)

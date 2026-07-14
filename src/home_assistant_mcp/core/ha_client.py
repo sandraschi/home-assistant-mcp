@@ -46,7 +46,7 @@ class HomeAssistantClient:
                 headers={
                     "Authorization": f"Bearer {self.config.get_token_value()}",
                     "Content-Type": "application/json",
-                }
+                },
             )
         logger.info(f"Connected to Home Assistant at {self.config.url}")
 
@@ -88,9 +88,10 @@ class HomeAssistantClient:
                     # Simple filtering by entity_id or domain
                     filter_lower = entity_filter.lower()
                     states = [
-                        state for state in states
-                        if filter_lower in state["entity_id"].lower() or
-                        filter_lower in state.get("attributes", {}).get("friendly_name", "").lower()
+                        state
+                        for state in states
+                        if filter_lower in state["entity_id"].lower()
+                        or filter_lower in state.get("attributes", {}).get("friendly_name", "").lower()
                     ]
 
                 return states
@@ -113,25 +114,16 @@ class HomeAssistantClient:
             logger.error(f"Failed to get state for {entity_id}: {e}")
             return None
 
-    async def call_service(
-        self,
-        domain: str,
-        service: str,
-        entity_id: str | None = None,
-        **kwargs
-    ) -> bool:
+    async def call_service(self, domain: str, service: str, entity_id: str | None = None, **kwargs) -> bool:
         """Call a Home Assistant service."""
         try:
             data = kwargs.copy()
             if entity_id:
                 data["entity_id"] = entity_id
 
-            async with self.session.post(
-                f"{self.config.url}/api/services/{domain}/{service}",
-                json=data
-            ) as response:
+            async with self.session.post(f"{self.config.url}/api/services/{domain}/{service}", json=data) as response:
                 response.raise_for_status()
-                result = await response.json()
+                await response.json()
                 logger.info(f"Service {domain}.{service} called successfully")
                 return True
 
@@ -156,10 +148,7 @@ class HomeAssistantClient:
             if variables:
                 data["variables"] = variables
 
-            async with self.session.post(
-                f"{self.config.url}/api/template",
-                json=data
-            ) as response:
+            async with self.session.post(f"{self.config.url}/api/template", json=data) as response:
                 response.raise_for_status()
                 result = await response.json()
                 return result.get("result")
@@ -186,19 +175,10 @@ class HomeAssistantClient:
         return await self.call_service("script", "turn_on", entity_id=script_entity_id, **variables)
 
     async def control_light(
-        self,
-        entity_id: str,
-        action: str,
-        brightness: int | None = None,
-        rgb_color: list[int] | None = None,
-        **kwargs
+        self, entity_id: str, action: str, brightness: int | None = None, rgb_color: list[int] | None = None, **kwargs
     ) -> bool:
         """Control a light entity."""
-        service_map = {
-            "on": "turn_on",
-            "off": "turn_off",
-            "toggle": "toggle"
-        }
+        service_map = {"on": "turn_on", "off": "turn_off", "toggle": "toggle"}
 
         if action not in service_map:
             logger.error(f"Unknown light action: {action}")
@@ -215,19 +195,14 @@ class HomeAssistantClient:
         return await self.call_service("light", service, entity_id=entity_id, **data)
 
     async def control_climate(
-        self,
-        entity_id: str,
-        action: str,
-        temperature: float | None = None,
-        hvac_mode: str | None = None,
-        **kwargs
+        self, entity_id: str, action: str, temperature: float | None = None, hvac_mode: str | None = None, **kwargs
     ) -> bool:
         """Control a climate entity."""
         service_map = {
             "set_temperature": "set_temperature",
             "set_hvac_mode": "set_hvac_mode",
             "turn_on": "turn_on",
-            "turn_off": "turn_off"
+            "turn_off": "turn_off",
         }
 
         if action not in service_map:
@@ -263,7 +238,7 @@ class HomeAssistantClient:
             "entities_by_domain": {domain: len(entities) for domain, entities in by_domain.items()},
             "ha_config": config,
             "available_events": len(events),
-            "domains": list(by_domain.keys())
+            "domains": list(by_domain.keys()),
         }
 
     def _get_next_message_id(self) -> int:
@@ -275,17 +250,11 @@ class HomeAssistantClient:
         """Connect to Home Assistant WebSocket API."""
         try:
             self.websocket = await websockets.connect(
-                self.config.websocket_url,
-                extra_headers={
-                    "Authorization": f"Bearer {self.config.get_token_value()}"
-                }
+                self.config.websocket_url, extra_headers={"Authorization": f"Bearer {self.config.get_token_value()}"}
             )
 
             # Authenticate
-            auth_msg = {
-                "type": "auth",
-                "access_token": self.config.get_token_value()
-            }
+            auth_msg = {"type": "auth", "access_token": self.config.get_token_value()}
             await self.websocket.send(json.dumps(auth_msg))
 
             # Wait for auth response
@@ -307,11 +276,7 @@ class HomeAssistantClient:
         if not self.websocket:
             await self.connect_websocket()
 
-        msg = {
-            "id": self._get_next_message_id(),
-            "type": "subscribe_events",
-            "event_type": event_type
-        }
+        msg = {"id": self._get_next_message_id(), "type": "subscribe_events", "event_type": event_type}
 
         await self.websocket.send(json.dumps(msg))
         logger.info(f"Subscribed to {event_type} events")

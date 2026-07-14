@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 # ADVANCED REQUEST/RESPONSE MODELS
 # ============================================================================
 
+
 class EntityFilter(BaseModel):
     """
     Advanced entity filtering with multiple criteria.
@@ -41,6 +42,7 @@ class EntityFilter(BaseModel):
     Supports complex queries across domains, states, and attributes for
     precise entity discovery and management.
     """
+
     domain: str | None = Field(None, description="Entity domain filter (light, switch, sensor, climate, etc.)")
     entity_id: str | None = Field(None, description="Exact entity ID match")
     state: str | None = Field(None, description="Current state filter (on, off, home, etc.)")
@@ -58,6 +60,7 @@ class ServiceCallRequest(BaseModel):
     Enables precise control of Home Assistant services with full parameter support,
     validation, and error handling.
     """
+
     domain: str = Field(..., description="Service domain (light, switch, climate, automation, etc.)")
     service: str = Field(..., description="Service name (turn_on, turn_off, set_temperature, etc.)")
     entity_id: str | list[str] | None = Field(None, description="Target entity ID(s) - single or multiple")
@@ -65,7 +68,7 @@ class ServiceCallRequest(BaseModel):
     area_id: str | None = Field(None, description="Area ID for area-based targeting")
     device_id: str | None = Field(None, description="Device ID for device-based targeting")
 
-    @field_validator('entity_id')
+    @field_validator("entity_id")
     @classmethod
     def validate_entity_id(cls, v):
         """Ensure entity_id is properly formatted."""
@@ -83,6 +86,7 @@ class LightControlRequest(BaseModel):
     Supports modern smart lighting features including color temperature,
     effects, transitions, and multi-zone control.
     """
+
     entity_id: str | list[str] = Field(..., description="Light entity ID(s)")
     action: Literal["on", "off", "toggle", "dim", "brighten"] = Field(..., description="Light control action")
     brightness: int | None = Field(None, ge=0, le=255, description="Brightness level (0-255)")
@@ -105,12 +109,17 @@ class ClimateControlRequest(BaseModel):
     Supports modern climate systems including multi-zone control,
     scheduling, and energy optimization.
     """
+
     entity_id: str | list[str] = Field(..., description="Climate entity ID(s)")
-    action: Literal["set_temperature", "set_hvac_mode", "set_preset_mode", "turn_on", "turn_off", "set_fan_mode"] = Field(..., description="Climate control action")
+    action: Literal["set_temperature", "set_hvac_mode", "set_preset_mode", "turn_on", "turn_off", "set_fan_mode"] = (
+        Field(..., description="Climate control action")
+    )
     temperature: float | None = Field(None, description="Target temperature (°C or °F based on HA config)")
     target_temp_high: float | None = Field(None, description="High target temperature for range mode")
     target_temp_low: float | None = Field(None, description="Low target temperature for range mode")
-    hvac_mode: Literal["off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"] | None = Field(None, description="HVAC operation mode")
+    hvac_mode: Literal["off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"] | None = Field(
+        None, description="HVAC operation mode"
+    )
     preset_mode: str | None = Field(None, description="Preset mode (home, away, boost, etc.)")
     fan_mode: str | None = Field(None, description="Fan mode (auto, low, medium, high)")
     swing_mode: str | None = Field(None, description="Swing mode (off, vertical, horizontal, both)")
@@ -123,6 +132,7 @@ class TemplateRenderRequest(BaseModel):
     Supports complex Jinja2 templates with Home Assistant state integration,
     custom variables, and error handling.
     """
+
     template: str = Field(..., description="Jinja2 template string with HA state access")
     variables: dict[str, Any] | None = Field(default_factory=dict, description="Custom template variables")
     timeout: int | None = Field(30, ge=1, le=300, description="Template rendering timeout in seconds")
@@ -135,6 +145,7 @@ class AutomationExecutionRequest(BaseModel):
     Supports complex automation triggers with custom data and
     conditional execution based on system state.
     """
+
     entity_id: str = Field(..., description="Automation entity ID")
     variables: dict[str, Any] | None = Field(default_factory=dict, description="Variables to pass to automation")
     skip_condition: bool | None = Field(False, description="Skip automation conditions if true")
@@ -147,6 +158,7 @@ class SceneActivationRequest(BaseModel):
     Enables smooth scene transitions with customizable timing
     and conditional activation.
     """
+
     entity_id: str = Field(..., description="Scene entity ID")
     transition: int | None = Field(None, ge=0, le=300, description="Transition time in seconds")
 
@@ -158,6 +170,7 @@ class SmartHomeOrchestrationRequest(BaseModel):
     Enables AI-powered multi-device coordination with natural language goals
     and automatic device discovery and control sequencing.
     """
+
     goal: str = Field(..., description="Natural language description of desired smart home state/behavior")
     max_steps: int | None = Field(5, ge=1, le=20, description="Maximum orchestration steps")
     safety_mode: bool | None = Field(True, description="Enable safety checks and confirmations")
@@ -171,6 +184,7 @@ class EnergyOptimizationRequest(BaseModel):
     Intelligent energy management with learning capabilities and
     optimization based on usage patterns and preferences.
     """
+
     mode: Literal["eco", "comfort", "performance"] = Field(..., description="Optimization mode")
     duration: int | None = Field(3600, ge=300, description="Optimization duration in seconds")
     learn_patterns: bool | None = Field(True, description="Learn from user behavior")
@@ -184,6 +198,7 @@ class SecurityMonitoringRequest(BaseModel):
     Comprehensive security system management with AI-powered anomaly
     detection and automated response capabilities.
     """
+
     mode: Literal["armed_home", "armed_away", "disarmed"] = Field(..., description="Security system mode")
     zones: list[str] | None = Field(None, description="Security zones to monitor")
     notify_on_events: bool | None = Field(True, description="Send notifications for security events")
@@ -194,11 +209,9 @@ class SecurityMonitoringRequest(BaseModel):
 # CONVERSATIONAL TOOL RESPONSES & SAMPLING CAPABILITIES
 # ============================================================================
 
+
 def _format_conversational_response(
-    success: bool,
-    action: str,
-    details: dict[str, Any],
-    conversational: bool = True
+    success: bool, action: str, details: dict[str, Any], conversational: bool = True
 ) -> dict[str, Any]:
     """
     Format tool responses in conversational style for better AI interaction.
@@ -212,12 +225,7 @@ def _format_conversational_response(
     Returns:
         Formatted response dictionary
     """
-    base_response = {
-        "success": success,
-        "timestamp": datetime.now().isoformat(),
-        "action": action,
-        **details
-    }
+    base_response = {"success": success, "timestamp": datetime.now().isoformat(), "action": action, **details}
 
     if conversational and success:
         base_response["message"] = f"✅ {action} completed successfully"
@@ -233,9 +241,7 @@ def _format_conversational_response(
 
 
 async def _execute_with_sampling(
-    mcp: FastMCP,
-    orchestration_request: SmartHomeOrchestrationRequest,
-    available_tools: list[str]
+    mcp: FastMCP, orchestration_request: SmartHomeOrchestrationRequest, available_tools: list[str]
 ) -> dict[str, Any]:
     """
     Execute autonomous orchestration using FastMCP 2.14.3 sampling capabilities.
@@ -257,31 +263,28 @@ async def _execute_with_sampling(
             "current_state_analysis": {
                 "total_entities": home_status["total_entities"],
                 "domains": list(home_status["entities_by_domain"].keys()),
-                "active_scenes": [s for s in current_states if s["entity_id"].startswith("scene.") and s["state"] == "on"]
+                "active_scenes": [
+                    s for s in current_states if s["entity_id"].startswith("scene.") and s["state"] == "on"
+                ],
             },
             "available_tools": available_tools,
             "max_steps": orchestration_request.max_steps,
-            "safety_enabled": orchestration_request.safety_mode
+            "safety_enabled": orchestration_request.safety_mode,
         }
 
         return _format_conversational_response(
-            True,
-            f"Smart home orchestration planned for: {orchestration_request.goal}",
-            orchestration_plan
+            True, f"Smart home orchestration planned for: {orchestration_request.goal}", orchestration_plan
         )
 
     except Exception as e:
         logger.exception("Failed to execute smart home orchestration")
-        return _format_conversational_response(
-            False,
-            "Smart home orchestration",
-            {"error": str(e)}
-        )
+        return _format_conversational_response(False, "Smart home orchestration", {"error": str(e)})
 
 
 # ============================================================================
 # ENHANCED MCP TOOLS REGISTRY (25+ TOOLS)
 # ============================================================================
+
 
 def register_all_ha_tools(mcp: FastMCP) -> None:
     """
@@ -340,22 +343,16 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     request.xy_color,
                     request.effect,
                     request.transition,
-                    request.flash
+                    request.flash,
                 )
 
                 if success:
                     new_state = await client.get_state(entity_id)
-                    results.append({
-                        "entity_id": entity_id,
-                        "success": True,
-                        "new_state": new_state
-                    })
+                    results.append({"entity_id": entity_id, "success": True, "new_state": new_state})
                 else:
-                    results.append({
-                        "entity_id": entity_id,
-                        "success": False,
-                        "error": f"Failed to control light {entity_id}"
-                    })
+                    results.append(
+                        {"entity_id": entity_id, "success": False, "error": f"Failed to control light {entity_id}"}
+                    )
 
             successful = sum(1 for r in results if r["success"])
             total = len(results)
@@ -377,17 +374,15 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                         "brightness_pct": request.brightness_pct,
                         "rgb_color": request.rgb_color,
                         "color_temp": request.color_temp,
-                        "effect": request.effect
-                    }
-                }
+                        "effect": request.effect,
+                    },
+                },
             )
 
         except Exception as e:
             logger.exception(f"Failed to control lights: {request}")
             return _format_conversational_response(
-                False,
-                "Advanced light control",
-                {"error": str(e), "request": request.dict()}
+                False, "Advanced light control", {"error": str(e), "request": request.dict()}
             )
 
     @mcp.tool()
@@ -425,22 +420,16 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     request.hvac_mode,
                     request.preset_mode,
                     request.fan_mode,
-                    request.swing_mode
+                    request.swing_mode,
                 )
 
                 if success:
                     new_state = await client.get_state(entity_id)
-                    results.append({
-                        "entity_id": entity_id,
-                        "success": True,
-                        "new_state": new_state
-                    })
+                    results.append({"entity_id": entity_id, "success": True, "new_state": new_state})
                 else:
-                    results.append({
-                        "entity_id": entity_id,
-                        "success": False,
-                        "error": f"Failed to control climate {entity_id}"
-                    })
+                    results.append(
+                        {"entity_id": entity_id, "success": False, "error": f"Failed to control climate {entity_id}"}
+                    )
 
             successful = sum(1 for r in results if r["success"])
 
@@ -460,17 +449,15 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                         "temperature": request.temperature,
                         "hvac_mode": request.hvac_mode,
                         "preset_mode": request.preset_mode,
-                        "fan_mode": request.fan_mode
-                    }
-                }
+                        "fan_mode": request.fan_mode,
+                    },
+                },
             )
 
         except Exception as e:
             logger.exception(f"Failed to control climate: {request}")
             return _format_conversational_response(
-                False,
-                "Advanced climate control",
-                {"error": str(e), "request": request.dict()}
+                False, "Advanced climate control", {"error": str(e), "request": request.dict()}
             )
 
     @mcp.tool()
@@ -498,15 +485,13 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             start_time = datetime.now()
 
             success = await client.execute_automation_advanced(
-                request.entity_id,
-                request.variables or {},
-                request.skip_condition
+                request.entity_id, request.variables or {}, request.skip_condition
             )
 
             execution_time = (datetime.now() - start_time).total_seconds()
 
             if success:
-                automation_name = request.entity_id.split('.')[-1].replace('_', ' ').title()
+                automation_name = request.entity_id.split(".")[-1].replace("_", " ").title()
 
                 return _format_conversational_response(
                     True,
@@ -516,22 +501,20 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                         "execution_time_seconds": execution_time,
                         "variables_passed": request.variables,
                         "conditions_skipped": request.skip_condition,
-                        "performance_note": f"Completed in {execution_time:.2f}s"
-                    }
+                        "performance_note": f"Completed in {execution_time:.2f}s",
+                    },
                 )
             else:
                 return _format_conversational_response(
                     False,
                     f"Automation execution failed: {request.entity_id}",
-                    {"execution_time_seconds": execution_time}
+                    {"execution_time_seconds": execution_time},
                 )
 
         except Exception as e:
             logger.exception(f"Failed to execute automation: {request}")
             return _format_conversational_response(
-                False,
-                "Advanced automation execution",
-                {"error": str(e), "request": request.dict()}
+                False, "Advanced automation execution", {"error": str(e), "request": request.dict()}
             )
 
     @mcp.tool()
@@ -556,13 +539,10 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
         try:
             client = get_ha_client()
 
-            success = await client.activate_scene(
-                request.entity_id,
-                request.transition
-            )
+            success = await client.activate_scene(request.entity_id, request.transition)
 
             if success:
-                scene_name = request.entity_id.split('.')[-1].replace('_', ' ').title()
+                scene_name = request.entity_id.split(".")[-1].replace("_", " ").title()
                 transition_note = f" with {request.transition}s transition" if request.transition else " instantly"
 
                 return _format_conversational_response(
@@ -571,22 +551,18 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     {
                         "entity_id": request.entity_id,
                         "transition_seconds": request.transition,
-                        "scene_type": "lighting_scene"
-                    }
+                        "scene_type": "lighting_scene",
+                    },
                 )
             else:
                 return _format_conversational_response(
-                    False,
-                    f"Scene activation failed: {request.entity_id}",
-                    {"entity_id": request.entity_id}
+                    False, f"Scene activation failed: {request.entity_id}", {"entity_id": request.entity_id}
                 )
 
         except Exception as e:
             logger.exception(f"Failed to activate scene: {request}")
             return _format_conversational_response(
-                False,
-                "Scene activation",
-                {"error": str(e), "request": request.dict()}
+                False, "Scene activation", {"error": str(e), "request": request.dict()}
             )
 
     # ------------------------------------------------------------------------
@@ -626,14 +602,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                             "entity": state,
                             "details": f"State: {state['state']}, Last updated: {state.get('last_updated', 'unknown')}",
                             "attributes": state.get("attributes", {}),
-                            "context_help": f"This {state['entity_id'].split('.')[0]} is currently {state['state']}"
-                        }
+                            "context_help": f"This {state['entity_id'].split('.')[0]} is currently {state['state']}",
+                        },
                     )
                 else:
                     return _format_conversational_response(
                         False,
                         f"Entity lookup for {filter.entity_id}",
-                        {"error": f"Entity not found: {filter.entity_id}"}
+                        {"error": f"Entity not found: {filter.entity_id}"},
                     )
 
             # Get all states with advanced filtering
@@ -654,7 +630,9 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                 if filter.state:
                     filtered_states = [s for s in filtered_states if s["state"] == filter.state]
                 if filter.device_class:
-                    filtered_states = [s for s in filtered_states if s.get("attributes", {}).get("device_class") == filter.device_class]
+                    filtered_states = [
+                        s for s in filtered_states if s.get("attributes", {}).get("device_class") == filter.device_class
+                    ]
                 if filter.area:
                     filtered_states = [s for s in filtered_states if s.get("attributes", {}).get("area") == filter.area]
 
@@ -668,10 +646,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
 
             filter_desc = []
             if filter:
-                if filter.domain: filter_desc.append(f"domain:{filter.domain}")
-                if filter.state: filter_desc.append(f"state:{filter.state}")
-                if filter.area: filter_desc.append(f"area:{filter.area}")
-                if filter.device_class: filter_desc.append(f"class:{filter.device_class}")
+                if filter.domain:
+                    filter_desc.append(f"domain:{filter.domain}")
+                if filter.state:
+                    filter_desc.append(f"state:{filter.state}")
+                if filter.area:
+                    filter_desc.append(f"area:{filter.area}")
+                if filter.device_class:
+                    filter_desc.append(f"class:{filter.device_class}")
 
             return _format_conversational_response(
                 True,
@@ -682,17 +664,13 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "grouped_by_domain": by_domain,
                     "filter_applied": ", ".join(filter_desc) if filter_desc else "none",
                     "summary": f"Found {len(filtered_states)} entities across {len(by_domain)} domains",
-                    "popular_domains": sorted(by_domain.keys(), key=lambda x: len(by_domain[x]), reverse=True)[:3]
-                }
+                    "popular_domains": sorted(by_domain.keys(), key=lambda x: len(by_domain[x]), reverse=True)[:3],
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to query entities")
-            return _format_conversational_response(
-                False,
-                "Entity discovery",
-                {"error": str(e)}
-            )
+            return _format_conversational_response(False, "Entity discovery", {"error": str(e)})
 
     @mcp.tool()
     async def control_entity(request: ServiceCallRequest) -> dict[str, Any]:
@@ -706,10 +684,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             client = get_ha_client()
 
             success = await client.call_service(
-                request.domain,
-                request.service,
-                request.entity_id,
-                **request.service_data
+                request.domain, request.service, request.entity_id, **request.service_data
             )
 
             if success:
@@ -722,24 +697,17 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                 return _format_conversational_response(
                     True,
                     f"Service call: {request.domain}.{request.service}",
-                    {
-                        "entity_id": request.entity_id,
-                        "new_state": new_state
-                    }
+                    {"entity_id": request.entity_id, "new_state": new_state},
                 )
             else:
                 return _format_conversational_response(
-                    False,
-                    f"Service call failed: {request.domain}.{request.service}",
-                    {"entity_id": request.entity_id}
+                    False, f"Service call failed: {request.domain}.{request.service}", {"entity_id": request.entity_id}
                 )
 
         except Exception as e:
             logger.exception(f"Failed to control entity: {request}")
             return _format_conversational_response(
-                False,
-                "Entity control",
-                {"error": str(e), "request": request.dict()}
+                False, "Entity control", {"error": str(e), "request": request.dict()}
             )
 
     @mcp.tool()
@@ -753,36 +721,22 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             client = get_ha_client()
 
             success = await client.control_light(
-                request.entity_id,
-                request.action,
-                request.brightness,
-                request.rgb_color
+                request.entity_id, request.action, request.brightness, request.rgb_color
             )
 
             if success:
                 new_state = await client.get_state(request.entity_id)
                 return _format_conversational_response(
-                    True,
-                    f"Light {request.action}",
-                    {
-                        "entity_id": request.entity_id,
-                        "new_state": new_state
-                    }
+                    True, f"Light {request.action}", {"entity_id": request.entity_id, "new_state": new_state}
                 )
             else:
                 return _format_conversational_response(
-                    False,
-                    f"Light {request.action}",
-                    {"entity_id": request.entity_id}
+                    False, f"Light {request.action}", {"entity_id": request.entity_id}
                 )
 
         except Exception as e:
             logger.exception(f"Failed to control light: {request}")
-            return _format_conversational_response(
-                False,
-                "Light control",
-                {"error": str(e), "request": request.dict()}
-            )
+            return _format_conversational_response(False, "Light control", {"error": str(e), "request": request.dict()})
 
     @mcp.tool()
     async def control_climate(request: ClimateControlRequest) -> dict[str, Any]:
@@ -795,35 +749,23 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             client = get_ha_client()
 
             success = await client.control_climate(
-                request.entity_id,
-                request.action,
-                request.temperature,
-                request.hvac_mode
+                request.entity_id, request.action, request.temperature, request.hvac_mode
             )
 
             if success:
                 new_state = await client.get_state(request.entity_id)
                 return _format_conversational_response(
-                    True,
-                    f"Climate control: {request.action}",
-                    {
-                        "entity_id": request.entity_id,
-                        "new_state": new_state
-                    }
+                    True, f"Climate control: {request.action}", {"entity_id": request.entity_id, "new_state": new_state}
                 )
             else:
                 return _format_conversational_response(
-                    False,
-                    f"Climate control: {request.action}",
-                    {"entity_id": request.entity_id}
+                    False, f"Climate control: {request.action}", {"entity_id": request.entity_id}
                 )
 
         except Exception as e:
             logger.exception(f"Failed to control climate: {request}")
             return _format_conversational_response(
-                False,
-                "Climate control",
-                {"error": str(e), "request": request.dict()}
+                False, "Climate control", {"error": str(e), "request": request.dict()}
             )
 
     @mcp.tool()
@@ -840,23 +782,17 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
 
             if success:
                 return _format_conversational_response(
-                    True,
-                    f"Executed automation: {entity_id}",
-                    {"entity_id": entity_id}
+                    True, f"Executed automation: {entity_id}", {"entity_id": entity_id}
                 )
             else:
                 return _format_conversational_response(
-                    False,
-                    f"Automation execution failed: {entity_id}",
-                    {"entity_id": entity_id}
+                    False, f"Automation execution failed: {entity_id}", {"entity_id": entity_id}
                 )
 
         except Exception as e:
             logger.exception(f"Failed to execute automation: {entity_id}")
             return _format_conversational_response(
-                False,
-                "Automation execution",
-                {"error": str(e), "entity_id": entity_id}
+                False, "Automation execution", {"error": str(e), "entity_id": entity_id}
             )
 
     @mcp.tool()
@@ -873,27 +809,16 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
 
             if success:
                 return _format_conversational_response(
-                    True,
-                    f"Executed script: {entity_id}",
-                    {
-                        "entity_id": entity_id,
-                        "variables": variables
-                    }
+                    True, f"Executed script: {entity_id}", {"entity_id": entity_id, "variables": variables}
                 )
             else:
                 return _format_conversational_response(
-                    False,
-                    f"Script execution failed: {entity_id}",
-                    {"entity_id": entity_id}
+                    False, f"Script execution failed: {entity_id}", {"entity_id": entity_id}
                 )
 
         except Exception as e:
             logger.exception(f"Failed to execute script: {entity_id}")
-            return _format_conversational_response(
-                False,
-                "Script execution",
-                {"error": str(e), "entity_id": entity_id}
-            )
+            return _format_conversational_response(False, "Script execution", {"error": str(e), "entity_id": entity_id})
 
     @mcp.tool()
     async def get_home_status() -> dict[str, Any]:
@@ -918,24 +843,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                         "timezone": config.get("time_zone") if config else "unknown",
                         "unit_system": config.get("unit_system") if config else "unknown",
                     },
-                    "entities": {
-                        "total": info["total_entities"],
-                        "by_domain": info["entities_by_domain"]
-                    },
-                    "system": {
-                        "domains_available": info["domains"],
-                        "events_available": info["available_events"]
-                    }
-                }
+                    "entities": {"total": info["total_entities"], "by_domain": info["entities_by_domain"]},
+                    "system": {"domains_available": info["domains"], "events_available": info["available_events"]},
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to get home status")
-            return _format_conversational_response(
-                False,
-                "Home status retrieval",
-                {"error": str(e)}
-            )
+            return _format_conversational_response(False, "Home status retrieval", {"error": str(e)})
 
     @mcp.tool()
     async def render_template(request: TemplateRenderRequest) -> dict[str, Any]:
@@ -947,34 +862,23 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
         try:
             client = get_ha_client()
 
-            result = await client.render_template(
-                request.template,
-                request.variables
-            )
+            result = await client.render_template(request.template, request.variables)
 
             if result is not None:
                 return _format_conversational_response(
                     True,
                     "Template rendered successfully",
-                    {
-                        "template": request.template,
-                        "result": result,
-                        "variables": request.variables
-                    }
+                    {"template": request.template, "result": result, "variables": request.variables},
                 )
             else:
                 return _format_conversational_response(
-                    False,
-                    "Template rendering failed",
-                    {"template": request.template}
+                    False, "Template rendering failed", {"template": request.template}
                 )
 
         except Exception as e:
             logger.exception(f"Failed to render template: {request}")
             return _format_conversational_response(
-                False,
-                "Template rendering",
-                {"error": str(e), "template": request.template}
+                False, "Template rendering", {"error": str(e), "template": request.template}
             )
 
     @mcp.tool()
@@ -990,21 +894,12 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             events = await client.get_events()
 
             return _format_conversational_response(
-                True,
-                f"Retrieved {len(events)} available events",
-                {
-                    "events": events,
-                    "count": len(events)
-                }
+                True, f"Retrieved {len(events)} available events", {"events": events, "count": len(events)}
             )
 
         except Exception as e:
             logger.exception("Failed to get available events")
-            return _format_conversational_response(
-                False,
-                "Event discovery",
-                {"error": str(e), "events": []}
-            )
+            return _format_conversational_response(False, "Event discovery", {"error": str(e), "events": []})
 
     # ------------------------------------------------------------------------
     # AI ORCHESTRATION & SAMPLING TOOLS (FastMCP 2.14.3 Features)
@@ -1033,9 +928,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             "Security lockdown - arm system, turn off unnecessary lights, notify"
         """
         available_tools = [
-            "query_entities", "control_light_advanced", "control_climate_advanced",
-            "execute_automation_advanced", "activate_scene", "get_home_status",
-            "energy_optimization", "security_monitoring"
+            "query_entities",
+            "control_light_advanced",
+            "control_climate_advanced",
+            "execute_automation_advanced",
+            "activate_scene",
+            "get_home_status",
+            "energy_optimization",
+            "security_monitoring",
         ]
 
         return await _execute_with_sampling(mcp, request, available_tools)
@@ -1090,17 +990,13 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "insights": insights,
                     "recommendations": recommendations,
                     "patterns": patterns,
-                    "data_quality": "high" if days >= 7 else "limited"
-                }
+                    "data_quality": "high" if days >= 7 else "limited",
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to analyze home patterns")
-            return _format_conversational_response(
-                False,
-                "Home pattern analysis",
-                {"error": str(e)}
-            )
+            return _format_conversational_response(False, "Home pattern analysis", {"error": str(e)})
 
     # ------------------------------------------------------------------------
     # ANALYTICS & MONITORING TOOLS
@@ -1154,12 +1050,12 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "home_assistant": {
                         "version": config.get("version") if config else "unknown",
                         "uptime": health.get("uptime_seconds", 0),
-                        "database_size_mb": health.get("database_size_mb", 0)
+                        "database_size_mb": health.get("database_size_mb", 0),
                     },
                     "entities": {
                         "total": info["total_entities"],
                         "by_domain": info["entities_by_domain"],
-                        "offline_count": len(offline_devices)
+                        "offline_count": len(offline_devices),
                     },
                     "insights": insights,
                     "alerts": alerts,
@@ -1167,18 +1063,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "recommendations": [
                         "Regular backup of configuration",
                         "Monitor for offline devices",
-                        "Keep Home Assistant updated"
-                    ]
-                }
+                        "Keep Home Assistant updated",
+                    ],
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to get detailed home status")
-            return _format_conversational_response(
-                False,
-                "Home system analysis",
-                {"error": str(e)}
-            )
+            return _format_conversational_response(False, "Home system analysis", {"error": str(e)})
 
     @mcp.tool()
     async def monitor_energy_usage(hours: int = 24) -> dict[str, Any]:
@@ -1238,17 +1130,13 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "insights": insights,
                     "savings_opportunities": savings_opportunities,
                     "efficiency_score": analysis.get("efficiency_score", "unknown"),
-                    "period_hours": hours
-                }
+                    "period_hours": hours,
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to monitor energy usage")
-            return _format_conversational_response(
-                False,
-                "Energy monitoring",
-                {"error": str(e)}
-            )
+            return _format_conversational_response(False, "Energy monitoring", {"error": str(e)})
 
     # ------------------------------------------------------------------------
     # SECURITY & SAFETY TOOLS
@@ -1277,11 +1165,8 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             client = get_ha_client()
 
             # Configure security system
-            security_config = await client.configure_security(
-                request.mode,
-                request.zones,
-                request.notify_on_events,
-                request.ai_anomaly_detection
+            await client.configure_security(
+                request.mode, request.zones, request.notify_on_events, request.ai_anomaly_detection
             )
 
             # Get current security status
@@ -1307,17 +1192,13 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "current_status": status,
                     "alerts": alerts,
                     "recommendations": recommendations,
-                    "system_health": "armed" if request.mode != "disarmed" else "disarmed"
-                }
+                    "system_health": "armed" if request.mode != "disarmed" else "disarmed",
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to configure security monitoring")
-            return _format_conversational_response(
-                False,
-                "Security system configuration",
-                {"error": str(e)}
-            )
+            return _format_conversational_response(False, "Security system configuration", {"error": str(e)})
 
     @mcp.tool()
     async def emergency_response(scenario: str) -> dict[str, Any]:
@@ -1356,16 +1237,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "systems_coordinated": execution_results.get("systems", []),
                     "response_time_seconds": execution_results.get("execution_time", 0),
                     "safety_measures": response_plan.get("safety_measures", []),
-                    "follow_up_required": execution_results.get("follow_up_needed", False)
-                }
+                    "follow_up_required": execution_results.get("follow_up_needed", False),
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to execute emergency response")
             return _format_conversational_response(
-                False,
-                "Emergency response execution",
-                {"error": str(e), "scenario": scenario}
+                False, "Emergency response execution", {"error": str(e), "scenario": scenario}
             )
 
     # ------------------------------------------------------------------------
@@ -1396,10 +1275,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
 
             # Start optimization
             optimization_plan = await client.start_energy_optimization(
-                request.mode,
-                request.duration,
-                request.learn_patterns,
-                request.zones
+                request.mode, request.duration, request.learn_patterns, request.zones
             )
 
             # Get initial results
@@ -1408,7 +1284,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             mode_descriptions = {
                 "eco": "Maximum energy savings with minimal comfort impact",
                 "comfort": "Balanced optimization maintaining comfort",
-                "performance": "Minimal optimization for full functionality"
+                "performance": "Minimal optimization for full functionality",
             }
 
             return _format_conversational_response(
@@ -1423,17 +1299,13 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "initial_savings_estimate": results.get("estimated_savings_kwh", 0),
                     "actions_planned": optimization_plan.get("actions", []),
                     "monitoring_active": True,
-                    "next_review": f"In {request.duration // 3600} hours"
-                }
+                    "next_review": f"In {request.duration // 3600} hours",
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to start energy optimization")
-            return _format_conversational_response(
-                False,
-                "Energy optimization setup",
-                {"error": str(e)}
-            )
+            return _format_conversational_response(False, "Energy optimization setup", {"error": str(e)})
 
     @mcp.tool()
     async def create_smart_schedule(name: str, activities: list[str]) -> dict[str, Any]:
@@ -1471,17 +1343,13 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "optimal_times": schedule.get("timing", {}),
                     "energy_considerations": schedule.get("energy_savings", {}),
                     "customization_suggestions": schedule.get("suggestions", []),
-                    "automation_count": len(schedule.get("automations", []))
-                }
+                    "automation_count": len(schedule.get("automations", [])),
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to create smart schedule")
-            return _format_conversational_response(
-                False,
-                "Smart schedule creation",
-                {"error": str(e), "name": name}
-            )
+            return _format_conversational_response(False, "Smart schedule creation", {"error": str(e), "name": name})
 
     # ------------------------------------------------------------------------
     # CONVENIENCE & SPECIALIZED TOOLS
@@ -1523,16 +1391,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "parsed_actions": parsed_command.get("actions", []),
                     "execution_results": results.get("details", {}),
                     "confidence_score": parsed_command.get("confidence", 0),
-                    "fallback_used": results.get("fallback_used", False)
-                }
+                    "fallback_used": results.get("fallback_used", False),
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to execute natural language control")
             return _format_conversational_response(
-                False,
-                "Natural language control",
-                {"error": str(e), "command": command}
+                False, "Natural language control", {"error": str(e), "command": command}
             )
 
     @mcp.tool()
@@ -1574,16 +1440,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "confidence_levels": predictions.get("confidence", {}),
                     "automations_created": automation_setup.get("automations", []),
                     "monitoring_active": True,
-                    "adaptation_enabled": predictions.get("learning_enabled", True)
-                }
+                    "adaptation_enabled": predictions.get("learning_enabled", True),
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to setup predictive automation")
             return _format_conversational_response(
-                False,
-                "Predictive automation setup",
-                {"error": str(e), "anticipate": anticipate}
+                False, "Predictive automation setup", {"error": str(e), "anticipate": anticipate}
             )
 
     @mcp.tool()
@@ -1624,16 +1488,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "actions_by_zone": plan.get("zone_actions", {}),
                     "coordination_results": results.get("details", {}),
                     "energy_optimization": plan.get("energy_savings", {}),
-                    "execution_time_seconds": results.get("execution_time", 0)
-                }
+                    "execution_time_seconds": results.get("execution_time", 0),
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to execute multi-zone orchestration")
             return _format_conversational_response(
-                False,
-                "Multi-zone orchestration",
-                {"error": str(e), "zones": zones, "scenario": scenario}
+                False, "Multi-zone orchestration", {"error": str(e), "zones": zones, "scenario": scenario}
             )
 
     # ------------------------------------------------------------------------
@@ -1674,16 +1536,14 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "performance_metrics": debug_report.get("performance", {}),
                     "recommendations": debug_report.get("recommendations", []),
                     "test_results": debug_report.get("tests", []),
-                    "optimization_suggestions": debug_report.get("optimizations", [])
-                }
+                    "optimization_suggestions": debug_report.get("optimizations", []),
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to debug automation")
             return _format_conversational_response(
-                False,
-                "Automation debugging",
-                {"error": str(e), "entity_id": entity_id}
+                False, "Automation debugging", {"error": str(e), "entity_id": entity_id}
             )
 
     @mcp.tool()
@@ -1711,7 +1571,7 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
             issues_by_severity = {
                 "critical": [i for i in maintenance_report.get("issues", []) if i.get("severity") == "critical"],
                 "warning": [i for i in maintenance_report.get("issues", []) if i.get("severity") == "warning"],
-                "info": [i for i in maintenance_report.get("issues", []) if i.get("severity") == "info"]
+                "info": [i for i in maintenance_report.get("issues", []) if i.get("severity") == "info"],
             }
 
             return _format_conversational_response(
@@ -1725,16 +1585,12 @@ def register_all_ha_tools(mcp: FastMCP) -> None:
                     "optimization_opportunities": maintenance_report.get("optimizations", []),
                     "backup_recommendations": maintenance_report.get("backup_status", {}),
                     "security_assessment": maintenance_report.get("security", {}),
-                    "next_maintenance_due": maintenance_report.get("next_check_date", "unknown")
-                }
+                    "next_maintenance_due": maintenance_report.get("next_check_date", "unknown"),
+                },
             )
 
         except Exception as e:
             logger.exception("Failed to perform system maintenance check")
-            return _format_conversational_response(
-                False,
-                "System maintenance check",
-                {"error": str(e)}
-            )
+            return _format_conversational_response(False, "System maintenance check", {"error": str(e)})
 
     logger.info("All 25+ Home Assistant MCP tools registered with sampling and conversational capabilities")

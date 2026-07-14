@@ -16,6 +16,7 @@ def ha_quick_start() -> Message:
         "4. From an MCP client use ha(operation='get_states') or ha(operation='call_service') or ha_agentic_workflow(goal='...')."
     )
 
+
 def ha_diagnostics() -> Message:
     """Diagnostic checklist for Home Assistant connection."""
     return Message(
@@ -24,6 +25,7 @@ def ha_diagnostics() -> Message:
         "2. Call ha(operation='get_states') to list entities.\n"
         "3. Ensure HA_URL is reachable and HA_TOKEN is a valid Long-Lived Access Token."
     )
+
 
 def register_prompts(mcp) -> None:
     """Register all SOTA prompts with the FastMCP instance."""

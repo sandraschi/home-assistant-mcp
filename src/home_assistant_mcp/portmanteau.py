@@ -1,4 +1,5 @@
 """Portmanteau tool ha(operation=...) for Home Assistant (FastMCP 3.1)."""
+
 import logging
 
 from fastmcp import Context
@@ -68,7 +69,10 @@ async def ha_tool(
                 return {"success": False, "error": "entity_id required for trigger_automation"}
             result = await client.trigger_automation(entity_id)
             return {"success": True, "result": result, "message": f"Triggered {entity_id}"}
-        return {"success": False, "error": f"Unknown operation: {operation}. Use get_states, get_state, call_service, get_config, get_automations, trigger_automation."}
+        return {
+            "success": False,
+            "error": f"Unknown operation: {operation}. Use get_states, get_state, call_service, get_config, get_automations, trigger_automation.",
+        }
     except Exception as e:
         logger.exception("HA operation failed")
         return {"success": False, "error": str(e), "correlation_id": correlation_id}

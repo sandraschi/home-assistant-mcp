@@ -2,7 +2,6 @@
 Global state management for Home Assistant MCP.
 """
 
-
 from .ha_client import HomeAssistantClient
 
 # Global HA client instance
