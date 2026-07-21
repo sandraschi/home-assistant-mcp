@@ -11,9 +11,12 @@ def ha_quick_start() -> Message:
     return Message(
         "You are helping set up the Home Assistant MCP server.\n\n"
         "1. In Home Assistant: Profile (bottom sidebar) -> Long-Lived Access Tokens -> Create token. Copy it.\n"
-        "2. Set HA_URL (e.g. http://192.168.1.50:8123) and HA_TOKEN. Start server: uv run python -m home_assistant_mcp.server --mode dual --port 10782.\n"
-        "3. Open dashboard at http://localhost:10783. Use States to browse entities, Services to call services, Automations to list/trigger.\n"
-        "4. From an MCP client use ha(operation='get_states') or ha(operation='call_service') or ha_agentic_workflow(goal='...')."
+        "2. Set HA_URL (e.g. http://192.168.1.50:8123) and HA_TOKEN. "
+        "Start server: uv run python -m home_assistant_mcp.server --mode dual --port 10782.\n"
+        "3. Open dashboard at http://localhost:10783. Use States to browse entities, "
+        "Services to call services, Automations to list/trigger.\n"
+        "4. From an MCP client use ha(operation='get_states') "
+        "or ha(operation='call_service') or ha_agentic_workflow(goal='...')."
     )
 
 

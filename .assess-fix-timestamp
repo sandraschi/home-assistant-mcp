@@ -1,12 +1,6 @@
-assess-fix run: 2026-07-14T$(Get-Date -Format 'HHmmss')
-repo: home-assistant-mcp
-version: 2.5.0
-cors_fixed: 2 files (server.py, transport.py)
-glama_json: created
-cursorrules: created
-changelog_md: created
-opencode_skills: created
-version_sync: __init__.py 0.1.0 -> 2.5.0
-ruff: F841 F821 S110 B904 E701 fixed
-mcpb_pack: dist/home-assistant-mcp-v2.5.0.mcpb
-remaining_lint: 4 E501 pre-existing in portmanteau.py, prompts.py
+{
+  "commit": "ef00a9e90302cf1d2f4f172bb8027502aeeb7db0",
+  "notes": "repaired from text format",
+  "host": "GOLIATH",
+  "timestamp": "2026-07-16T02:17:32.6437306+02:00"
+}

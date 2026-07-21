@@ -71,7 +71,8 @@ async def ha_tool(
             return {"success": True, "result": result, "message": f"Triggered {entity_id}"}
         return {
             "success": False,
-            "error": f"Unknown operation: {operation}. Use get_states, get_state, call_service, get_config, get_automations, trigger_automation.",
+            "error": f"Unknown operation: {operation}. Use get_states, get_state, "
+            "call_service, get_config, get_automations, trigger_automation.",
         }
     except Exception as e:
         logger.exception("HA operation failed")

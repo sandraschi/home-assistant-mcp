@@ -57,8 +57,7 @@ _HELP_CATEGORIES = {
         "ha(operation='get_states', entity_id='...', domain='light')."
     ),
     "call_service": (
-        "Call a HA service. "
-        "ha(operation='call_service', domain='light', service='turn_on', entity_id='light.living')."
+        "Call a HA service. ha(operation='call_service', domain='light', service='turn_on', entity_id='light.living')."
     ),
     "get_config": "HA server config. ha(operation='get_config').",
     "automations": "get_automations lists automation entities; trigger_automation(entity_id) runs one.",
