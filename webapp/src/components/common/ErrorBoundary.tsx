@@ -1,17 +1,22 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import React, { Component, type ErrorInfo, type ReactNode } from "react";
 
-interface Props { children: ReactNode }
-interface State { hasError: boolean; error?: Error }
+interface Props {
+  children: ReactNode;
+}
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
 
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false }
+  state: State = { hasError: false };
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error }
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary:', error, errorInfo)
+    console.error("ErrorBoundary:", error, errorInfo);
   }
 
   render() {
@@ -23,8 +28,8 @@ export class ErrorBoundary extends Component<Props, State> {
             <p className="text-sm text-slate-500">{this.state.error?.message}</p>
           </div>
         </div>
-      )
+      );
     }
-    return this.props.children
+    return this.props.children;
   }
 }

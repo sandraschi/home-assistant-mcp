@@ -1,41 +1,41 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { ListTodo, RefreshCw, PlayCircle, Loader2, AlertCircle } from 'lucide-react'
-import { api, type HaState } from '../lib/api'
+import { AlertCircle, ListTodo, Loader2, PlayCircle, RefreshCw } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { type HaState, api } from "../lib/api";
 
 export default function Automations() {
-  const [automations, setAutomations] = useState<HaState[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [triggering, setTriggering] = useState<string | null>(null)
+  const [automations, setAutomations] = useState<HaState[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [triggering, setTriggering] = useState<string | null>(null);
 
   const fetchAutomations = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const res = await api.getAutomations()
-      setAutomations(res.automations ?? [])
+      const res = await api.getAutomations();
+      setAutomations(res.automations ?? []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load automations')
-      setAutomations([])
+      setError(e instanceof Error ? e.message : "Failed to load automations");
+      setAutomations([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    fetchAutomations()
-  }, [fetchAutomations])
+    fetchAutomations();
+  }, [fetchAutomations]);
 
   const trigger = async (entity_id: string) => {
-    setTriggering(entity_id)
+    setTriggering(entity_id);
     try {
-      await api.triggerAutomation(entity_id)
+      await api.triggerAutomation(entity_id);
     } catch {
-      setError('Trigger failed')
+      setError("Trigger failed");
     } finally {
-      setTriggering(null)
+      setTriggering(null);
     }
-  }
+  };
 
   return (
     <div className="space-y-6 py-4 max-w-4xl">
@@ -53,7 +53,7 @@ export default function Automations() {
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-slate-400 hover:text-slate-200 text-sm disabled:opacity-50"
         >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
           Refresh
         </button>
       </div>
@@ -75,7 +75,10 @@ export default function Automations() {
         <div className="rounded-2xl border border-white/10 bg-[#0f0f12]/80 overflow-hidden">
           <ul className="divide-y divide-white/5">
             {automations.map((a) => (
-              <li key={a.entity_id} className="flex items-center justify-between px-4 py-3 hover:bg-white/5">
+              <li
+                key={a.entity_id}
+                className="flex items-center justify-between px-4 py-3 hover:bg-white/5"
+              >
                 <div>
                   <p className="font-mono text-sm text-slate-200">{a.entity_id}</p>
                   <p className="text-xs text-slate-500">State: {a.state}</p>
@@ -86,7 +89,11 @@ export default function Automations() {
                   disabled={triggering !== null}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs hover:bg-emerald-500/30 disabled:opacity-50"
                 >
-                  {triggering === a.entity_id ? <Loader2 size={12} className="animate-spin" /> : <PlayCircle size={12} />}
+                  {triggering === a.entity_id ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <PlayCircle size={12} />
+                  )}
                   Trigger
                 </button>
               </li>
@@ -98,5 +105,5 @@ export default function Automations() {
         </div>
       )}
     </div>
-  )
+  );
 }

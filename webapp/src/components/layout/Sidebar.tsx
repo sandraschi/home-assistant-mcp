@@ -1,22 +1,33 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion } from "framer-motion";
 import {
-  LayoutDashboard, Layers, PlayCircle, ListTodo, Settings, HelpCircle,
-  Wrench, ChevronLeft, ChevronRight, Home,
-} from 'lucide-react'
+  ChevronLeft,
+  ChevronRight,
+  HelpCircle,
+  Home,
+  Layers,
+  LayoutDashboard,
+  ListTodo,
+  PlayCircle,
+  Settings,
+  Wrench,
+} from "lucide-react";
+import React from "react";
+import { NavLink } from "react-router-dom";
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/states', label: 'States', icon: Layers },
-  { path: '/services', label: 'Services', icon: PlayCircle },
-  { path: '/automations', label: 'Automations', icon: ListTodo },
-  { path: '/tools', label: 'MCP Tools', icon: Wrench },
-  { path: '/settings', label: 'Settings', icon: Settings },
-  { path: '/help', label: 'Help', icon: HelpCircle },
-]
+  { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/states", label: "States", icon: Layers },
+  { path: "/services", label: "Services", icon: PlayCircle },
+  { path: "/automations", label: "Automations", icon: ListTodo },
+  { path: "/tools", label: "MCP Tools", icon: Wrench },
+  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/help", label: "Help", icon: HelpCircle },
+];
 
-export default function Sidebar({ isCollapsed, onToggle }: { isCollapsed: boolean; onToggle: () => void }) {
+export default function Sidebar({
+  isCollapsed,
+  onToggle,
+}: { isCollapsed: boolean; onToggle: () => void }) {
   return (
     <motion.aside
       initial={false}
@@ -30,8 +41,12 @@ export default function Sidebar({ isCollapsed, onToggle }: { isCollapsed: boolea
           </div>
           {!isCollapsed && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-white leading-tight">HOME ASSISTANT</span>
-              <span className="text-[10px] font-medium text-emerald-400/80 uppercase tracking-widest">Mission Control</span>
+              <span className="text-lg font-bold tracking-tight text-white leading-tight">
+                HOME ASSISTANT
+              </span>
+              <span className="text-[10px] font-medium text-emerald-400/80 uppercase tracking-widest">
+                Mission Control
+              </span>
             </motion.div>
           )}
         </div>
@@ -43,7 +58,9 @@ export default function Sidebar({ isCollapsed, onToggle }: { isCollapsed: boolea
             to={item.path}
             className={({ isActive }) =>
               `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-200 ${
-                isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200 border border-transparent'
+                isActive
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  : "text-slate-400 hover:bg-white/5 hover:text-slate-200 border border-transparent"
               }`
             }
           >
@@ -60,5 +77,5 @@ export default function Sidebar({ isCollapsed, onToggle }: { isCollapsed: boolea
         {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
       </button>
     </motion.aside>
-  )
+  );
 }

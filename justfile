@@ -1,4 +1,4 @@
-set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
 import 'scripts/just/fleet.just'
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -6,6 +6,13 @@ import 'scripts/just/fleet.just'
 # Open the interactive recipe dashboard in the browser
 default:
     @just --list
+
+# Synchronize deps, pre-commit hooks, and webapp frontend
+bootstrap:
+    uv sync --extra dev
+    uv run pre-commit install
+    Set-Location webapp; npm ci; if ($LASTEXITCODE -ne 0) { npm install }
+    Write-Host "Pre-commit hooks installed." -ForegroundColor Green
 
 # ── Quality ───────────────────────────────────────────────────────────────────
 
@@ -46,7 +53,3 @@ build-native:
 	foreach ($line in $envOutput) { $parts = $line.Split('=', 2); Set-Item -Path "env:$($parts[0])" -Value $parts[1] -ErrorAction SilentlyContinue }
 	Set-Location '{{justfile_directory()}}\native'
 	npx @tauri-apps/cli build --bundles nsis
-
-# Run the CUA smoke test against the installed NSIS app
-cua-nsis-test:
-	C:\Windows\py.exe scripts/cua-smoke.py

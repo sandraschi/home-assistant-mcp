@@ -1,35 +1,48 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Layers, RefreshCw, AlertCircle } from 'lucide-react'
-import { api, type HaState } from '../lib/api'
+import { AlertCircle, Layers, RefreshCw } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { type HaState, api } from "../lib/api";
 
-const DOMAINS = ['', 'light', 'switch', 'vacuum', 'climate', 'sensor', 'binary_sensor', 'automation', 'script', 'cover', 'media_player']
+const DOMAINS = [
+  "",
+  "light",
+  "switch",
+  "vacuum",
+  "climate",
+  "sensor",
+  "binary_sensor",
+  "automation",
+  "script",
+  "cover",
+  "media_player",
+];
 
 export default function States() {
-  const [states, setStates] = useState<HaState[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [domain, setDomain] = useState('')
+  const [states, setStates] = useState<HaState[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [domain, setDomain] = useState("");
 
   const fetchStates = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const res = await api.getStates(domain ? { domain } : undefined)
+      const res = await api.getStates(domain ? { domain } : undefined);
       const list = Array.isArray(res)
         ? res
-        : (res as { states?: HaState[] }).states ?? ((res as HaState).entity_id ? [res as HaState] : [])
-      setStates(list)
+        : ((res as { states?: HaState[] }).states ??
+          ((res as HaState).entity_id ? [res as HaState] : []));
+      setStates(list);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load states')
-      setStates([])
+      setError(e instanceof Error ? e.message : "Failed to load states");
+      setStates([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [domain])
+  }, [domain]);
 
   useEffect(() => {
-    fetchStates()
-  }, [fetchStates])
+    fetchStates();
+  }, [fetchStates]);
 
   return (
     <div className="space-y-6 py-4 max-w-5xl mx-auto">
@@ -48,7 +61,9 @@ export default function States() {
             className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-slate-200"
           >
             {DOMAINS.map((d) => (
-              <option key={d} value={d}>{d || 'All domains'}</option>
+              <option key={d} value={d}>
+                {d || "All domains"}
+              </option>
             ))}
           </select>
           <button
@@ -57,7 +72,7 @@ export default function States() {
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-slate-400 hover:text-slate-200 text-sm disabled:opacity-50"
           >
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
             Refresh
           </button>
         </div>
@@ -96,9 +111,11 @@ export default function States() {
               </tbody>
             </table>
           </div>
-          <p className="p-2 text-xs text-slate-500 border-t border-white/5">{states.length} entities</p>
+          <p className="p-2 text-xs text-slate-500 border-t border-white/5">
+            {states.length} entities
+          </p>
         </div>
       )}
     </div>
-  )
+  );
 }

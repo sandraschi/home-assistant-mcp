@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import Sidebar from './Sidebar'
+import { AnimatePresence, motion } from "framer-motion";
+import type React from "react";
+import { useState } from "react";
+import Sidebar from "./Sidebar";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false);
   return (
     <div className="flex w-screen h-screen bg-[#0a0a0c] text-slate-200 overflow-hidden font-sans">
       <Sidebar isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
@@ -25,5 +26,5 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </main>
     </div>
-  )
+  );
 }

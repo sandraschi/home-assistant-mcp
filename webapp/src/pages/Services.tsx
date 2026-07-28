@@ -1,37 +1,37 @@
-import React, { useState } from 'react'
-import { PlayCircle, Loader2, AlertCircle, Check } from 'lucide-react'
-import { api } from '../lib/api'
+import { AlertCircle, Check, Loader2, PlayCircle } from "lucide-react";
+import React, { useState } from "react";
+import { api } from "../lib/api";
 
 const COMMON_SERVICES: { domain: string; service: string; label: string; entity_id?: string }[] = [
-  { domain: 'light', service: 'turn_on', label: 'Light on', entity_id: '' },
-  { domain: 'light', service: 'turn_off', label: 'Light off', entity_id: '' },
-  { domain: 'vacuum', service: 'start', label: 'Vacuum start', entity_id: '' },
-  { domain: 'vacuum', service: 'return_to_base', label: 'Vacuum dock', entity_id: '' },
-  { domain: 'climate', service: 'set_temperature', label: 'Set temp', entity_id: '' },
-]
+  { domain: "light", service: "turn_on", label: "Light on", entity_id: "" },
+  { domain: "light", service: "turn_off", label: "Light off", entity_id: "" },
+  { domain: "vacuum", service: "start", label: "Vacuum start", entity_id: "" },
+  { domain: "vacuum", service: "return_to_base", label: "Vacuum dock", entity_id: "" },
+  { domain: "climate", service: "set_temperature", label: "Set temp", entity_id: "" },
+];
 
 export default function Services() {
-  const [domain, setDomain] = useState('light')
-  const [service, setService] = useState('turn_on')
-  const [entityId, setEntityId] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [domain, setDomain] = useState("light");
+  const [service, setService] = useState("turn_on");
+  const [entityId, setEntityId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const call = async (dom?: string, svc?: string, eid?: string) => {
-    const d = dom ?? domain
-    const s = svc ?? service
-    const e = eid ?? entityId
-    setLoading(true)
-    setMsg(null)
+    const d = dom ?? domain;
+    const s = svc ?? service;
+    const e = eid ?? entityId;
+    setLoading(true);
+    setMsg(null);
     try {
-      await api.callService(d, s, e ? { entity_id: e } : undefined)
-      setMsg({ type: 'ok', text: `Called ${d}.${s}` })
+      await api.callService(d, s, e ? { entity_id: e } : undefined);
+      setMsg({ type: "ok", text: `Called ${d}.${s}` });
     } catch (err) {
-      setMsg({ type: 'err', text: err instanceof Error ? err.message : 'Failed' })
+      setMsg({ type: "err", text: err instanceof Error ? err.message : "Failed" });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-6 py-4 max-w-4xl">
@@ -44,9 +44,11 @@ export default function Services() {
       </div>
 
       {msg && (
-        <div className={`flex items-center gap-3 p-4 rounded-2xl border ${msg.type === 'ok' ? 'border-green-500/20 bg-green-500/10 text-green-200' : 'border-amber-500/20 bg-amber-500/10 text-amber-200'}`}>
-          {msg.type === 'err' && <AlertCircle className="w-5 h-5 flex-shrink-0" />}
-          {msg.type === 'ok' && <Check className="w-5 h-5 flex-shrink-0" />}
+        <div
+          className={`flex items-center gap-3 p-4 rounded-2xl border ${msg.type === "ok" ? "border-green-500/20 bg-green-500/10 text-green-200" : "border-amber-500/20 bg-amber-500/10 text-amber-200"}`}
+        >
+          {msg.type === "err" && <AlertCircle className="w-5 h-5 flex-shrink-0" />}
+          {msg.type === "ok" && <Check className="w-5 h-5 flex-shrink-0" />}
           <p className="text-sm">{msg.text}</p>
         </div>
       )}
@@ -98,7 +100,9 @@ export default function Services() {
 
       <div className="rounded-2xl border border-white/10 bg-[#0f0f12]/80 p-5">
         <h2 className="text-sm font-bold text-slate-200 mb-3">Quick actions</h2>
-        <p className="text-xs text-slate-500 mb-3">Set entity_id in States, then use these or add entity_id when calling.</p>
+        <p className="text-xs text-slate-500 mb-3">
+          Set entity_id in States, then use these or add entity_id when calling.
+        </p>
         <div className="flex flex-wrap gap-2">
           {COMMON_SERVICES.map((s) => (
             <button
@@ -114,5 +118,5 @@ export default function Services() {
         </div>
       </div>
     </div>
-  )
+  );
 }
