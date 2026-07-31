@@ -5,9 +5,8 @@ Tests for FastMCP 2.14.3 sampling, autonomous orchestration,
 predictive automation, and conversational AI features.
 """
 
-
 import pytest
-from conftest import assert_conversational_response, assert_orchestration_result
+from conftest import assert_conversational_response, assert_orchestration_result, assert_tool_execution_time
 
 from home_assistant_mcp.mcp.tools import SmartHomeOrchestrationRequest
 
@@ -19,20 +18,12 @@ class TestAutonomousOrchestration:
     async def test_movie_night_orchestration(self, tool_functions, orchestration_tester, sampling_validator):
         """Test complete movie night orchestration scenario."""
         # Setup orchestration tester
-        orchestration_tester.add_step(
-            "analyze_current_states",
-            "query_entities",
-            {}
-        )
-        orchestration_tester.add_step(
-            "control_lighting_scene",
-            "activate_scene",
-            {"entity_id": "scene.movie_night"}
-        )
+        orchestration_tester.add_step("analyze_current_states", "query_entities", {})
+        orchestration_tester.add_step("control_lighting_scene", "activate_scene", {"entity_id": "scene.movie_night"})
         orchestration_tester.add_step(
             "adjust_climate",
             "control_climate_advanced",
-            {"entity_id": "climate.living_room", "action": "set_temperature", "temperature": 70}
+            {"entity_id": "climate.living_room", "action": "set_temperature", "temperature": 70},
         )
 
         # Mock successful responses
@@ -44,7 +35,7 @@ class TestAutonomousOrchestration:
         request = SmartHomeOrchestrationRequest(
             goal="Prepare for movie night - dim lights, close blinds, start entertainment system",
             max_steps=5,
-            safety_mode=True
+            safety_mode=True,
         )
 
         sampling_validator.record_sampling_event("orchestration_start", {"goal": request.goal})
@@ -59,10 +50,7 @@ class TestAutonomousOrchestration:
         assert result["execution_time_seconds"] > 0
 
         # Validate sampling flow
-        validation = sampling_validator.validate_orchestration_flow([
-            "orchestration_start",
-            "orchestration_complete"
-        ])
+        validation = sampling_validator.validate_orchestration_flow(["orchestration_start", "orchestration_complete"])
         assert validation["steps_match"]
 
     @pytest.mark.asyncio
@@ -71,7 +59,7 @@ class TestAutonomousOrchestration:
         request = SmartHomeOrchestrationRequest(
             goal="Execute morning routine with lighting progression and climate adjustment",
             max_steps=4,
-            learning_mode=True
+            learning_mode=True,
         )
 
         result = await tool_functions["smart_home_orchestration"](request)
@@ -84,9 +72,7 @@ class TestAutonomousOrchestration:
     async def test_security_lockdown_orchestration(self, tool_functions):
         """Test emergency security orchestration."""
         request = SmartHomeOrchestrationRequest(
-            goal="Execute security lockdown - arm system, secure premises, send alerts",
-            max_steps=3,
-            safety_mode=True
+            goal="Execute security lockdown - arm system, secure premises, send alerts", max_steps=3, safety_mode=True
         )
 
         result = await tool_functions["smart_home_orchestration"](request)
@@ -99,9 +85,7 @@ class TestAutonomousOrchestration:
     async def test_energy_optimization_orchestration(self, tool_functions):
         """Test energy optimization orchestration."""
         request = SmartHomeOrchestrationRequest(
-            goal="Optimize energy usage across all zones for efficiency",
-            max_steps=4,
-            safety_mode=True
+            goal="Optimize energy usage across all zones for efficiency", max_steps=4, safety_mode=True
         )
 
         result = await tool_functions["smart_home_orchestration"](request)
@@ -117,9 +101,7 @@ class TestNaturalLanguageControl:
     @pytest.mark.asyncio
     async def test_simple_light_command(self, tool_functions):
         """Test simple natural language light control."""
-        result = await tool_functions["natural_language_control"](
-            "Turn on the living room lights"
-        )
+        result = await tool_functions["natural_language_control"]("Turn on the living room lights")
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -141,9 +123,7 @@ class TestNaturalLanguageControl:
     @pytest.mark.asyncio
     async def test_automation_trigger_command(self, tool_functions):
         """Test natural language automation triggering."""
-        result = await tool_functions["natural_language_control"](
-            "Start the morning routine automation"
-        )
+        result = await tool_functions["natural_language_control"]("Start the morning routine automation")
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -152,9 +132,7 @@ class TestNaturalLanguageControl:
     @pytest.mark.asyncio
     async def test_query_command(self, tool_functions):
         """Test natural language query commands."""
-        result = await tool_functions["natural_language_control"](
-            "What's the current temperature in the living room?"
-        )
+        result = await tool_functions["natural_language_control"]("What's the current temperature in the living room?")
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -163,9 +141,7 @@ class TestNaturalLanguageControl:
     @pytest.mark.asyncio
     async def test_ambiguous_command_handling(self, tool_functions):
         """Test handling of ambiguous or unclear commands."""
-        result = await tool_functions["natural_language_control"](
-            "Do something with the lights maybe"
-        )
+        result = await tool_functions["natural_language_control"]("Do something with the lights maybe")
 
         # Should either succeed with best interpretation or fail gracefully
         assert "message" in result
@@ -181,8 +157,7 @@ class TestPredictiveAutomation:
     async def test_commute_prediction(self, tool_functions):
         """Test commute-based predictive automation."""
         result = await tool_functions["predictive_automation"](
-            "prepare for my return home from work",
-            timeframe_minutes=30
+            "prepare for my return home from work", timeframe_minutes=30
         )
 
         assert_conversational_response(result)
@@ -195,8 +170,7 @@ class TestPredictiveAutomation:
     async def test_meal_preparation_prediction(self, tool_functions):
         """Test meal preparation predictive automation."""
         result = await tool_functions["predictive_automation"](
-            "prepare dinner based on cooking time and preferences",
-            timeframe_minutes=60
+            "prepare dinner based on cooking time and preferences", timeframe_minutes=60
         )
 
         assert_conversational_response(result)
@@ -207,10 +181,7 @@ class TestPredictiveAutomation:
     @pytest.mark.asyncio
     async def test_sleep_routine_prediction(self, tool_functions):
         """Test sleep routine predictive automation."""
-        result = await tool_functions["predictive_automation"](
-            "prepare for bedtime routine",
-            timeframe_minutes=45
-        )
+        result = await tool_functions["predictive_automation"]("prepare for bedtime routine", timeframe_minutes=45)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -220,8 +191,7 @@ class TestPredictiveAutomation:
     async def test_prediction_confidence_filtering(self, tool_functions):
         """Test that low-confidence predictions are filtered out."""
         result = await tool_functions["predictive_automation"](
-            "predict something unlikely to happen",
-            timeframe_minutes=10
+            "predict something unlikely to happen", timeframe_minutes=10
         )
 
         assert_conversational_response(result)
@@ -238,8 +208,7 @@ class TestMultiZoneOrchestration:
     async def test_party_mode_orchestration(self, tool_functions):
         """Test party mode across multiple zones."""
         result = await tool_functions["multi_zone_orchestration"](
-            zones=["living_room", "dining_room", "kitchen"],
-            scenario="party_mode"
+            zones=["living_room", "dining_room", "kitchen"], scenario="party_mode"
         )
 
         assert_conversational_response(result)
@@ -252,8 +221,7 @@ class TestMultiZoneOrchestration:
     async def test_movie_night_zones(self, tool_functions):
         """Test movie night orchestration across zones."""
         result = await tool_functions["multi_zone_orchestration"](
-            zones=["living_room", "kitchen"],
-            scenario="movie_night"
+            zones=["living_room", "kitchen"], scenario="movie_night"
         )
 
         assert_conversational_response(result)
@@ -265,8 +233,7 @@ class TestMultiZoneOrchestration:
     async def test_security_lockdown_zones(self, tool_functions):
         """Test security lockdown across zones."""
         result = await tool_functions["multi_zone_orchestration"](
-            zones=["perimeter", "interior"],
-            scenario="security_lockdown"
+            zones=["perimeter", "interior"], scenario="security_lockdown"
         )
 
         assert_conversational_response(result)
@@ -281,16 +248,9 @@ class TestSmartScheduleCreation:
     @pytest.mark.asyncio
     async def test_morning_routine_schedule(self, tool_functions):
         """Test morning routine schedule creation."""
-        activities = [
-            "gentle_wake_up_lighting",
-            "coffee_preparation",
-            "work_environment_setup"
-        ]
+        activities = ["gentle_wake_up_lighting", "coffee_preparation", "work_environment_setup"]
 
-        result = await tool_functions["create_smart_schedule"](
-            name="morning_routine",
-            activities=activities
-        )
+        result = await tool_functions["create_smart_schedule"](name="morning_routine", activities=activities)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -302,16 +262,9 @@ class TestSmartScheduleCreation:
     @pytest.mark.asyncio
     async def test_workday_productivity_schedule(self, tool_functions):
         """Test workday productivity schedule."""
-        activities = [
-            "focus_lighting",
-            "concentration_climate",
-            "break_reminders"
-        ]
+        activities = ["focus_lighting", "concentration_climate", "break_reminders"]
 
-        result = await tool_functions["create_smart_schedule"](
-            name="workday_productivity",
-            activities=activities
-        )
+        result = await tool_functions["create_smart_schedule"](name="workday_productivity", activities=activities)
 
         assert_conversational_response(result)
         assert result["success"] is True
@@ -329,9 +282,7 @@ class TestSamplingCapabilities:
 
         # Execute complex orchestration
         request = SmartHomeOrchestrationRequest(
-            goal="Complete home evening routine - lights, climate, security",
-            max_steps=6,
-            safety_mode=True
+            goal="Complete home evening routine - lights, climate, security", max_steps=6, safety_mode=True
         )
 
         result = await tool_functions["smart_home_orchestration"](request)
@@ -350,7 +301,7 @@ class TestSamplingCapabilities:
         request = SmartHomeOrchestrationRequest(
             goal="Very complex orchestration with many steps",
             max_steps=3,  # Limit to 3 steps
-            safety_mode=True
+            safety_mode=True,
         )
 
         result = await tool_functions["smart_home_orchestration"](request)
@@ -364,7 +315,7 @@ class TestSamplingCapabilities:
         request = SmartHomeOrchestrationRequest(
             goal="Disable all security systems and unlock everything",
             max_steps=5,
-            safety_mode=True  # Should prevent dangerous actions
+            safety_mode=True,  # Should prevent dangerous actions
         )
 
         result = await tool_functions["smart_home_orchestration"](request)
@@ -386,34 +337,22 @@ class TestConversationalAI:
         # Test successful operation
         result1 = await tool_functions["query_entities"]()
         validation1 = conversational_validator.validate_response(
-            result1,
-            ["conversational", "contextual", "successful"]
+            result1, ["conversational", "contextual", "successful"]
         )
         assert validation1["features_present"] == ["conversational", "contextual", "successful"]
 
         # Test error response
-        result2 = await tool_functions["query_entities"](
-            entity_filter="light.nonexistent"
-        )
-        validation2 = conversational_validator.validate_response(
-            result2,
-            ["conversational", "error"]
-        )
+        result2 = await tool_functions["query_entities"](entity_filter="light.nonexistent")
+        validation2 = conversational_validator.validate_response(result2, ["conversational", "error"])
         assert "conversational" in validation2["features_present"]
 
     @pytest.mark.asyncio
     async def test_response_actionability(self, tool_functions, conversational_validator):
         """Test that error responses provide actionable guidance."""
         # Trigger an error
-        result = await tool_functions["control_light_advanced"](
-            entity_id="light.nonexistent",
-            action="on"
-        )
+        result = await tool_functions["control_light_advanced"](entity_id="light.nonexistent", action="on")
 
-        validation = conversational_validator.validate_response(
-            result,
-            ["conversational", "actionable", "error"]
-        )
+        conversational_validator.validate_response(result, ["conversational", "actionable", "error"])
 
         # Should provide helpful error information
         assert result["success"] is False
@@ -440,11 +379,7 @@ class TestOrchestrationPerformance:
         """Test that orchestrations execute within time limits."""
         performance_monitor.start_timer("orchestration_speed")
 
-        request = SmartHomeOrchestrationRequest(
-            goal="Quick lighting adjustment",
-            max_steps=2,
-            safety_mode=True
-        )
+        request = SmartHomeOrchestrationRequest(goal="Quick lighting adjustment", max_steps=2, safety_mode=True)
 
         result = await tool_functions["smart_home_orchestration"](request)
 
@@ -453,7 +388,7 @@ class TestOrchestrationPerformance:
         assert_orchestration_result(result, 1)
         assert_tool_execution_time(
             performance_monitor.get_metrics()["orchestration_speed"]["duration"],
-            3.0  # Orchestration should complete within 3 seconds
+            3.0,  # Orchestration should complete within 3 seconds
         )
 
     @pytest.mark.asyncio
@@ -461,10 +396,7 @@ class TestOrchestrationPerformance:
         """Test that orchestrations don't cause memory leaks."""
         # Run multiple orchestrations in sequence
         for i in range(5):
-            request = SmartHomeOrchestrationRequest(
-                goal=f"Test orchestration {i}",
-                max_steps=2
-            )
+            request = SmartHomeOrchestrationRequest(goal=f"Test orchestration {i}", max_steps=2)
             result = await tool_functions["smart_home_orchestration"](request)
             assert result["success"] is True
 

@@ -98,10 +98,7 @@ class TestLightControl:
     @pytest.mark.asyncio
     async def test_light_control_basic_on(self, tool_functions):
         """Test basic light turn on."""
-        request = LightControlRequest(
-            entity_id="light.living_room",
-            action="on"
-        )
+        request = LightControlRequest(entity_id="light.living_room", action="on")
 
         result = await tool_functions["control_light_advanced"](request)
 
@@ -113,11 +110,7 @@ class TestLightControl:
     @pytest.mark.asyncio
     async def test_light_control_brightness(self, tool_functions):
         """Test light control with brightness."""
-        request = LightControlRequest(
-            entity_id="light.living_room",
-            action="on",
-            brightness_pct=75
-        )
+        request = LightControlRequest(entity_id="light.living_room", action="on", brightness_pct=75)
 
         result = await tool_functions["control_light_advanced"](request)
 
@@ -131,7 +124,7 @@ class TestLightControl:
         request = LightControlRequest(
             entity_id="light.living_room",
             action="on",
-            rgb_color=[255, 100, 150]  # Pink
+            rgb_color=[255, 100, 150],  # Pink
         )
 
         result = await tool_functions["control_light_advanced"](request)
@@ -143,10 +136,7 @@ class TestLightControl:
     @pytest.mark.asyncio
     async def test_light_control_multiple_entities(self, tool_functions):
         """Test controlling multiple lights simultaneously."""
-        request = LightControlRequest(
-            entity_id=["light.living_room", "light.bedroom"],
-            action="off"
-        )
+        request = LightControlRequest(entity_id=["light.living_room", "light.bedroom"], action="off")
 
         result = await tool_functions["control_light_advanced"](request)
 
@@ -157,12 +147,7 @@ class TestLightControl:
     @pytest.mark.asyncio
     async def test_light_control_transition(self, tool_functions):
         """Test light control with transition time."""
-        request = LightControlRequest(
-            entity_id="light.living_room",
-            action="on",
-            brightness_pct=50,
-            transition=2.5
-        )
+        request = LightControlRequest(entity_id="light.living_room", action="on", brightness_pct=50, transition=2.5)
 
         result = await tool_functions["control_light_advanced"](request)
 
@@ -173,10 +158,7 @@ class TestLightControl:
     @pytest.mark.asyncio
     async def test_light_control_invalid_entity(self, tool_functions):
         """Test light control with invalid entity."""
-        request = LightControlRequest(
-            entity_id="light.nonexistent",
-            action="on"
-        )
+        request = LightControlRequest(entity_id="light.nonexistent", action="on")
 
         result = await tool_functions["control_light_advanced"](request)
 
@@ -191,11 +173,7 @@ class TestClimateControl:
     @pytest.mark.asyncio
     async def test_climate_set_temperature(self, tool_functions):
         """Test setting climate temperature."""
-        request = ClimateControlRequest(
-            entity_id="climate.living_room",
-            action="set_temperature",
-            temperature=74.0
-        )
+        request = ClimateControlRequest(entity_id="climate.living_room", action="set_temperature", temperature=74.0)
 
         result = await tool_functions["control_climate_advanced"](request)
 
@@ -206,11 +184,7 @@ class TestClimateControl:
     @pytest.mark.asyncio
     async def test_climate_set_hvac_mode(self, tool_functions):
         """Test setting HVAC mode."""
-        request = ClimateControlRequest(
-            entity_id="climate.living_room",
-            action="set_hvac_mode",
-            hvac_mode="cool"
-        )
+        request = ClimateControlRequest(entity_id="climate.living_room", action="set_hvac_mode", hvac_mode="cool")
 
         result = await tool_functions["control_climate_advanced"](request)
 
@@ -222,9 +196,7 @@ class TestClimateControl:
     async def test_climate_multiple_entities(self, tool_functions):
         """Test controlling multiple climate entities."""
         request = ClimateControlRequest(
-            entity_id=["climate.living_room", "climate.bedroom"],
-            action="set_hvac_mode",
-            hvac_mode="off"
+            entity_id=["climate.living_room", "climate.bedroom"], action="set_hvac_mode", hvac_mode="off"
         )
 
         result = await tool_functions["control_climate_advanced"](request)
@@ -252,8 +224,7 @@ class TestAutomationExecution:
         from home_assistant_mcp.mcp.tools import AutomationExecutionRequest
 
         request = AutomationExecutionRequest(
-            entity_id="automation.morning_routine",
-            variables={"brightness": 80, "temperature": 72}
+            entity_id="automation.morning_routine", variables={"brightness": 80, "temperature": 72}
         )
 
         result = await tool_functions["execute_automation_advanced"](request)
@@ -267,10 +238,7 @@ class TestAutomationExecution:
         """Test scene activation."""
         from home_assistant_mcp.mcp.tools import SceneActivationRequest
 
-        request = SceneActivationRequest(
-            entity_id="scene.movie_night",
-            transition=3
-        )
+        request = SceneActivationRequest(entity_id="scene.movie_night", transition=3)
 
         result = await tool_functions["activate_scene"](request)
 
@@ -286,9 +254,7 @@ class TestTemplateRendering:
     @pytest.mark.asyncio
     async def test_render_simple_template(self, tool_functions):
         """Test rendering a simple template."""
-        request = TemplateRenderRequest(
-            template="Current temperature: {{ states('sensor.temperature_living_room') }}"
-        )
+        request = TemplateRenderRequest(template="Current temperature: {{ states('sensor.temperature_living_room') }}")
 
         result = await tool_functions["render_template"](request)
 
@@ -300,8 +266,7 @@ class TestTemplateRendering:
     async def test_render_template_with_variables(self, tool_functions):
         """Test template rendering with custom variables."""
         request = TemplateRenderRequest(
-            template="Hello {{ name }}, the temperature is {{ temp }}°F",
-            variables={"name": "Alice", "temp": 72}
+            template="Hello {{ name }}, the temperature is {{ temp }}°F", variables={"name": "Alice", "temp": 72}
         )
 
         result = await tool_functions["render_template"](request)
@@ -340,11 +305,7 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_invalid_entity_reference(self, tool_functions):
         """Test handling of invalid entity references."""
-        request = ServiceCallRequest(
-            domain="light",
-            service="turn_on",
-            entity_id="light.invalid_entity"
-        )
+        request = ServiceCallRequest(domain="light", service="turn_on", entity_id="light.invalid_entity")
 
         result = await tool_functions["control_entity"](request)
 
@@ -357,10 +318,7 @@ class TestErrorHandling:
         """Test handling of network timeouts."""
         # This would require mocking network failures
         # For now, test with invalid service call
-        request = ServiceCallRequest(
-            domain="invalid_domain",
-            service="invalid_service"
-        )
+        request = ServiceCallRequest(domain="invalid_domain", service="invalid_service")
 
         result = await tool_functions["control_entity"](request)
 
@@ -390,7 +348,7 @@ class TestPerformance:
 
         # Execute multiple queries concurrently
         tasks = []
-        for i in range(5):
+        for _i in range(5):
             task = tool_functions["query_entities"]()
             tasks.append(task)
 
@@ -413,10 +371,7 @@ class TestPerformance:
         """Test light control response time."""
         performance_monitor.start_timer("light_control_timing")
 
-        request = LightControlRequest(
-            entity_id="light.living_room",
-            action="toggle"
-        )
+        request = LightControlRequest(entity_id="light.living_room", action="toggle")
 
         result = await tool_functions["control_light_advanced"](request)
 
@@ -462,11 +417,7 @@ class TestConversationalResponses:
     @pytest.mark.asyncio
     async def test_response_context_inclusion(self, tool_functions):
         """Test that responses include relevant context."""
-        request = LightControlRequest(
-            entity_id="light.living_room",
-            action="on",
-            brightness_pct=80
-        )
+        request = LightControlRequest(entity_id="light.living_room", action="on", brightness_pct=80)
 
         result = await tool_functions["control_light_advanced"](request)
 

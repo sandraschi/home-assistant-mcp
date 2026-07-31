@@ -13,22 +13,15 @@ import pytest
 # Test data and fixtures
 try:
     from fixtures.mock_ha_api import MockHomeAssistantAPI
-    from fixtures.sample_data import SAMPLE_AUTOMATIONS, SAMPLE_CONFIG, SAMPLE_ENTITIES, SAMPLE_SCENES, SAMPLE_STATES
 except ImportError:
     # Handle case where conftest is imported directly (not by pytest)
     try:
         from fixtures.mock_ha_api import MockHomeAssistantAPI
-        from fixtures.sample_data import (
-            SAMPLE_AUTOMATIONS,
-            SAMPLE_CONFIG,
-            SAMPLE_ENTITIES,
-            SAMPLE_SCENES,
-            SAMPLE_STATES,
-        )
     except ImportError:
         # Fallback for when running from different directory
         import os
         import sys
+
         sys.path.insert(0, os.path.dirname(__file__))
         from fixtures.mock_ha_api import MockHomeAssistantAPI
 
@@ -48,7 +41,7 @@ def mock_config():
         "ha_url": "http://mock-home-assistant:8123",
         "ha_token": "mock_token_12345",
         "mcp_port": 8080,
-        "log_level": "DEBUG"
+        "log_level": "DEBUG",
     }
 
 
@@ -135,28 +128,18 @@ def sample_entity_data():
         "light.living_room": {
             "entity_id": "light.living_room",
             "state": "on",
-            "attributes": {
-                "friendly_name": "Living Room Light",
-                "brightness": 255,
-                "rgb_color": [255, 255, 255]
-            }
+            "attributes": {"friendly_name": "Living Room Light", "brightness": 255, "rgb_color": [255, 255, 255]},
         },
         "climate.living_room": {
             "entity_id": "climate.living_room",
             "state": "heat",
-            "attributes": {
-                "friendly_name": "Living Room Climate",
-                "temperature": 72.0,
-                "current_temperature": 70.0
-            }
+            "attributes": {"friendly_name": "Living Room Climate", "temperature": 72.0, "current_temperature": 70.0},
         },
         "automation.morning_routine": {
             "entity_id": "automation.morning_routine",
             "state": "on",
-            "attributes": {
-                "friendly_name": "Morning Routine"
-            }
-        }
+            "attributes": {"friendly_name": "Morning Routine"},
+        },
     }
 
 
@@ -168,19 +151,17 @@ def sample_conversation_context():
         "session_id": "test_session_123",
         "conversation_history": [
             {"role": "user", "content": "Turn on the living room lights"},
-            {"role": "assistant", "content": "I'll turn on the living room lights for you."}
+            {"role": "assistant", "content": "I'll turn on the living room lights for you."},
         ],
         "active_entities": ["light.living_room", "climate.living_room"],
-        "user_preferences": {
-            "temperature_unit": "fahrenheit",
-            "brightness_default": 80
-        }
+        "user_preferences": {"temperature_unit": "fahrenheit", "brightness_default": 80},
     }
 
 
 @pytest.fixture
 def performance_monitor():
     """Performance monitoring fixture."""
+
     class PerformanceMonitor:
         def __init__(self):
             self.metrics = {}
@@ -204,6 +185,7 @@ def performance_monitor():
 @pytest.fixture
 def orchestration_tester():
     """Orchestration testing utilities."""
+
     class OrchestrationTester:
         def __init__(self):
             self.orchestration_steps = []
@@ -211,12 +193,9 @@ def orchestration_tester():
 
         def add_step(self, step_name: str, tool_name: str, parameters: dict[str, Any]):
             """Add an orchestration step."""
-            self.orchestration_steps.append({
-                "name": step_name,
-                "tool": tool_name,
-                "parameters": parameters,
-                "executed": False
-            })
+            self.orchestration_steps.append(
+                {"name": step_name, "tool": tool_name, "parameters": parameters, "executed": False}
+            )
 
         def mock_tool_response(self, tool_name: str, response: dict[str, Any]):
             """Mock tool response for testing."""
@@ -227,7 +206,7 @@ def orchestration_tester():
             return {
                 "steps": self.orchestration_steps,
                 "total_steps": len(self.orchestration_steps),
-                "mock_responses": self.mock_responses
+                "mock_responses": self.mock_responses,
             }
 
         async def execute_orchestration(self):
@@ -248,6 +227,7 @@ def orchestration_tester():
 @pytest.fixture
 def conversational_validator():
     """Conversational response validation."""
+
     class ConversationalValidator:
         def __init__(self):
             self.validations = []
@@ -260,7 +240,7 @@ def conversational_validator():
                 "has_message": "message" in response,
                 "has_success": "success" in response,
                 "features_present": [],
-                "issues": []
+                "issues": [],
             }
 
             # Check required features
@@ -290,7 +270,7 @@ def conversational_validator():
                 "total_validations": total,
                 "passed": passed,
                 "failed": total - passed,
-                "success_rate": passed / total if total > 0 else 0
+                "success_rate": passed / total if total > 0 else 0,
             }
 
     return ConversationalValidator()
@@ -299,17 +279,16 @@ def conversational_validator():
 @pytest.fixture
 def sampling_validator():
     """FastMCP 2.14.3 sampling validation."""
+
     class SamplingValidator:
         def __init__(self):
             self.sampling_events = []
 
         def record_sampling_event(self, event_type: str, details: dict[str, Any]):
             """Record a sampling event for validation."""
-            self.sampling_events.append({
-                "type": event_type,
-                "timestamp": asyncio.get_event_loop().time(),
-                "details": details
-            })
+            self.sampling_events.append(
+                {"type": event_type, "timestamp": asyncio.get_event_loop().time(), "details": details}
+            )
 
         def validate_orchestration_flow(self, expected_steps: list[str]):
             """Validate that sampling orchestration followed expected flow."""
@@ -320,7 +299,7 @@ def sampling_validator():
                 "actual_steps": actual_steps,
                 "steps_match": actual_steps == expected_steps,
                 "missing_steps": [step for step in expected_steps if step not in actual_steps],
-                "extra_steps": [step for step in actual_steps if step not in expected_steps]
+                "extra_steps": [step for step in actual_steps if step not in expected_steps],
             }
 
             return validation
@@ -335,7 +314,7 @@ def sampling_validator():
             return {
                 "total_events": len(self.sampling_events),
                 "event_types": event_types,
-                "duration": self._calculate_duration()
+                "duration": self._calculate_duration(),
             }
 
         def _calculate_duration(self):
@@ -375,8 +354,9 @@ def assert_orchestration_result(result: dict[str, Any], expected_steps: int):
     assert "actions_executed" in result, "Missing executed actions"
 
     if expected_steps > 0:
-        assert len(result["actions_executed"]) >= expected_steps, \
+        assert len(result["actions_executed"]) >= expected_steps, (
             f"Expected at least {expected_steps} actions, got {len(result['actions_executed'])}"
+        )
 
 
 # Test data helpers
@@ -385,12 +365,9 @@ def create_mock_entity(entity_id: str, state: str = "on", **attributes):
     return {
         "entity_id": entity_id,
         "state": state,
-        "attributes": {
-            "friendly_name": entity_id.split(".")[-1].replace("_", " ").title(),
-            **attributes
-        },
+        "attributes": {"friendly_name": entity_id.split(".")[-1].replace("_", " ").title(), **attributes},
         "last_updated": "2026-01-16T10:00:00Z",
-        "last_changed": "2026-01-16T10:00:00Z"
+        "last_changed": "2026-01-16T10:00:00Z",
     }
 
 
@@ -399,10 +376,7 @@ def create_mock_automation(name: str, enabled: bool = True):
     return {
         "entity_id": f"automation.{name.lower().replace(' ', '_')}",
         "state": "on" if enabled else "off",
-        "attributes": {
-            "friendly_name": name,
-            "id": name.lower().replace(" ", "_")
-        }
+        "attributes": {"friendly_name": name, "id": name.lower().replace(" ", "_")},
     }
 
 
@@ -411,7 +385,5 @@ def create_mock_scene(name: str):
     return {
         "entity_id": f"scene.{name.lower().replace(' ', '_')}",
         "state": "scened",
-        "attributes": {
-            "friendly_name": name
-        }
+        "attributes": {"friendly_name": name},
     }

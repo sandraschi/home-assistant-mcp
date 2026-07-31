@@ -30,9 +30,7 @@ class TestEndToEndWorkflows:
 
         # Step 2: Orchestrated setup
         movie_request = SmartHomeOrchestrationRequest(
-            goal="Prepare for movie night - dim lights, adjust climate, create ambiance",
-            max_steps=5,
-            safety_mode=True
+            goal="Prepare for movie night - dim lights, adjust climate, create ambiance", max_steps=5, safety_mode=True
         )
         orchestration = await tool_functions["smart_home_orchestration"](movie_request)
         assert_orchestration_result(orchestration, 3)
@@ -49,19 +47,16 @@ class TestEndToEndWorkflows:
         """Test complete morning routine workflow."""
         # Create smart schedule
         schedule = await tool_functions["create_smart_schedule"](
-            name="morning_workflow",
-            activities=["lighting", "climate", "automation"]
+            name="morning_workflow", activities=["lighting", "climate", "automation"]
         )
         assert_conversational_response(schedule)
         assert schedule["success"] is True
 
         # Execute automation
         from home_assistant_mcp.mcp.tools import AutomationExecutionRequest
+
         execution = await tool_functions["execute_automation_advanced"](
-            AutomationExecutionRequest(
-                entity_id="automation.morning_routine",
-                variables={"intensity": "gentle"}
-            )
+            AutomationExecutionRequest(entity_id="automation.morning_routine", variables={"intensity": "gentle"})
         )
         assert_conversational_response(execution)
 
@@ -74,11 +69,7 @@ class TestEndToEndWorkflows:
         """Test security emergency response workflow."""
         # Step 1: Arm security system
         security = await tool_functions["security_monitoring"](
-            SecurityMonitoringRequest(
-                mode="armed_home",
-                zones=["interior", "exterior"],
-                ai_anomaly_detection=True
-            )
+            SecurityMonitoringRequest(mode="armed_home", zones=["interior", "exterior"], ai_anomaly_detection=True)
         )
         assert_conversational_response(security)
         assert security["success"] is True
@@ -101,11 +92,7 @@ class TestEndToEndWorkflows:
 
         # Step 2: Start optimization
         optimization = await tool_functions["energy_optimization"](
-            EnergyOptimizationRequest(
-                mode="eco",
-                duration=3600,
-                learn_patterns=True
-            )
+            EnergyOptimizationRequest(mode="eco", duration=3600, learn_patterns=True)
         )
         assert_conversational_response(optimization)
         assert optimization["success"] is True
@@ -125,20 +112,18 @@ class TestCrossToolInteractions:
     async def test_orchestration_with_manual_override(self, tool_functions):
         """Test orchestration followed by manual control adjustments."""
         # Start with orchestration
-        orch_request = SmartHomeOrchestrationRequest(
-            goal="Set up evening ambiance",
-            max_steps=3
-        )
+        orch_request = SmartHomeOrchestrationRequest(goal="Set up evening ambiance", max_steps=3)
         orchestration = await tool_functions["smart_home_orchestration"](orch_request)
         assert_orchestration_result(orchestration, 1)
 
         # Manual adjustment
         from home_assistant_mcp.mcp.tools import LightControlRequest
+
         manual_adjust = await tool_functions["control_light_advanced"](
             LightControlRequest(
                 entity_id="light.living_room",
                 action="on",
-                brightness_pct=70  # Manual override
+                brightness_pct=70,  # Manual override
             )
         )
         assert_conversational_response(manual_adjust)
@@ -153,19 +138,13 @@ class TestCrossToolInteractions:
         """Test coordination between energy optimization and security."""
         # Start energy optimization
         energy = await tool_functions["energy_optimization"](
-            EnergyOptimizationRequest(
-                mode="eco",
-                zones=["non_security"]
-            )
+            EnergyOptimizationRequest(mode="eco", zones=["non_security"])
         )
         assert_conversational_response(energy)
 
         # Enable security (should not conflict)
         security = await tool_functions["security_monitoring"](
-            SecurityMonitoringRequest(
-                mode="armed_home",
-                zones=["all"]
-            )
+            SecurityMonitoringRequest(mode="armed_home", zones=["all"])
         )
         assert_conversational_response(security)
 
@@ -178,19 +157,19 @@ class TestCrossToolInteractions:
         """Test predictive automation with manual intervention."""
         # Set up predictive automation
         predictive = await tool_functions["predictive_automation"](
-            anticipate="return home routine",
-            timeframe_minutes=30
+            anticipate="return home routine", timeframe_minutes=30
         )
         assert_conversational_response(predictive)
         assert predictive["success"] is True
 
         # Manual override during predictive period
         from home_assistant_mcp.mcp.tools import ClimateControlRequest
+
         manual = await tool_functions["control_climate_advanced"](
             ClimateControlRequest(
                 entity_id="climate.living_room",
                 action="set_temperature",
-                temperature=75.0  # Manual override
+                temperature=75.0,  # Manual override
             )
         )
         assert_conversational_response(manual)
@@ -209,9 +188,7 @@ class TestConversationalConsistency:
         errors = []
 
         # Invalid entity
-        result1 = await tool_functions["query_entities"](
-            entity_id="light.invalid"
-        )
+        result1 = await tool_functions["query_entities"](entity_id="light.invalid")
         errors.append(result1)
 
         # Invalid automation
@@ -220,12 +197,8 @@ class TestConversationalConsistency:
 
         # Invalid service
         from home_assistant_mcp.mcp.tools import ServiceCallRequest
-        result3 = await tool_functions["control_entity"](
-            ServiceCallRequest(
-                domain="invalid",
-                service="service"
-            )
-        )
+
+        result3 = await tool_functions["control_entity"](ServiceCallRequest(domain="invalid", service="service"))
         errors.append(result3)
 
         # All errors should follow conversational format
@@ -246,6 +219,7 @@ class TestConversationalConsistency:
 
         # Successful light control
         from home_assistant_mcp.mcp.tools import LightControlRequest
+
         result2 = await tool_functions["control_light_advanced"](
             LightControlRequest(entity_id="light.living_room", action="on")
         )
@@ -253,10 +227,7 @@ class TestConversationalConsistency:
 
         # Successful orchestration
         result3 = await tool_functions["smart_home_orchestration"](
-            SmartHomeOrchestrationRequest(
-                goal="Simple lighting adjustment",
-                max_steps=2
-            )
+            SmartHomeOrchestrationRequest(goal="Simple lighting adjustment", max_steps=2)
         )
         successes.append(result3)
 
@@ -272,22 +243,16 @@ class TestConversationalConsistency:
         """Test that responses include relevant contextual information."""
         # Light control should include brightness info
         from home_assistant_mcp.mcp.tools import LightControlRequest
+
         light_result = await tool_functions["control_light_advanced"](
-            LightControlRequest(
-                entity_id="light.living_room",
-                action="on",
-                brightness_pct=80
-            )
+            LightControlRequest(entity_id="light.living_room", action="on", brightness_pct=80)
         )
 
         assert "80%" in light_result["message"] or "brightness_pct" in light_result.get("action_details", {})
 
         # Orchestration should include execution details
         orch_result = await tool_functions["smart_home_orchestration"](
-            SmartHomeOrchestrationRequest(
-                goal="Test orchestration",
-                max_steps=2
-            )
+            SmartHomeOrchestrationRequest(goal="Test orchestration", max_steps=2)
         )
 
         assert "execution_time_seconds" in orch_result
@@ -327,11 +292,7 @@ class TestPerformanceIntegration:
         """Test memory usage during heavy operations."""
         # Execute multiple complex orchestrations
         for i in range(5):
-            request = SmartHomeOrchestrationRequest(
-                goal=f"Complex orchestration {i}",
-                max_steps=5,
-                safety_mode=True
-            )
+            request = SmartHomeOrchestrationRequest(goal=f"Complex orchestration {i}", max_steps=5, safety_mode=True)
             result = await tool_functions["smart_home_orchestration"](request)
             assert result["success"] is True
 
@@ -347,14 +308,14 @@ class TestPerformanceIntegration:
         operations = []
 
         # Successful operations
-        for i in range(3):
+        for _i in range(3):
             start = time.time()
             result = await tool_functions["query_entities"]()
             duration = time.time() - start
             operations.append(("success", duration, result["success"]))
 
         # Failed operations
-        for i in range(2):
+        for _i in range(2):
             start = time.time()
             result = await tool_functions["query_entities"](entity_id="invalid")
             duration = time.time() - start
@@ -377,20 +338,16 @@ class TestRealWorldScenarios:
         # Set up guest mode
         guest_orch = await tool_functions["smart_home_orchestration"](
             SmartHomeOrchestrationRequest(
-                goal="Prepare for guest arrival - welcoming lighting, comfortable climate",
-                max_steps=4
+                goal="Prepare for guest arrival - welcoming lighting, comfortable climate", max_steps=4
             )
         )
         assert_orchestration_result(guest_orch, 2)
 
         # Adjust for specific preferences
         from home_assistant_mcp.mcp.tools import ClimateControlRequest
+
         climate = await tool_functions["control_climate_advanced"](
-            ClimateControlRequest(
-                entity_id="climate.living_room",
-                action="set_temperature",
-                temperature=72.0
-            )
+            ClimateControlRequest(entity_id="climate.living_room", action="set_temperature", temperature=72.0)
         )
         assert_conversational_response(climate)
 
@@ -399,8 +356,7 @@ class TestRealWorldScenarios:
         """Test work-from-home environment setup."""
         # Create productivity schedule
         schedule = await tool_functions["create_smart_schedule"](
-            name="work_session",
-            activities=["focus_lighting", "optimal_climate", "productivity_setup"]
+            name="work_session", activities=["focus_lighting", "optimal_climate", "productivity_setup"]
         )
         assert_conversational_response(schedule)
 
@@ -409,7 +365,7 @@ class TestRealWorldScenarios:
             EnergyOptimizationRequest(
                 mode="performance",
                 duration=28800,  # 8 hours
-                zones=["office"]
+                zones=["office"],
             )
         )
         assert_conversational_response(energy)
@@ -419,11 +375,7 @@ class TestRealWorldScenarios:
         """Test complete leaving home routine."""
         # Security activation
         security = await tool_functions["security_monitoring"](
-            SecurityMonitoringRequest(
-                mode="armed_away",
-                zones=["all"],
-                notify_on_events=True
-            )
+            SecurityMonitoringRequest(mode="armed_away", zones=["all"], notify_on_events=True)
         )
         assert_conversational_response(security)
 
@@ -431,7 +383,7 @@ class TestRealWorldScenarios:
         energy = await tool_functions["energy_optimization"](
             EnergyOptimizationRequest(
                 mode="eco",
-                duration=28800  # 8 hours away
+                duration=28800,  # 8 hours away
             )
         )
         assert_conversational_response(energy)
@@ -477,7 +429,7 @@ class TestSamplingIntegration:
         request = SmartHomeOrchestrationRequest(
             goal="Complete home cinema setup with lighting, audio, climate, and security integration",
             max_steps=8,
-            safety_mode=True
+            safety_mode=True,
         )
 
         result = await tool_functions["smart_home_orchestration"](request)

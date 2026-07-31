@@ -26,7 +26,7 @@ class TestRunner:
         self.test_results = {}
         self.performance_metrics = {}
         self.coverage_data = {}
-        self.logger = logging.getLogger('ha_mcp_test_runner')
+        self.logger = logging.getLogger("ha_mcp_test_runner")
 
     async def run_all_tests(self) -> dict[str, Any]:
         """Run complete test suite with comprehensive reporting."""
@@ -39,7 +39,7 @@ class TestRunner:
             "test_orchestration",
             "test_security_energy",
             "test_integration",
-            "test_performance"
+            "test_performance",
         ]
 
         total_results = {
@@ -52,7 +52,7 @@ class TestRunner:
             "errors": [],
             "performance": {},
             "coverage": {},
-            "quality_score": 0
+            "quality_score": 0,
         }
 
         for suite in test_suites:
@@ -86,15 +86,17 @@ class TestRunner:
         suite_start = time.time()
 
         # Run pytest programmatically
-        result = pytest.main([
-            f"tests/{suite_name}.py",
-            "-v",
-            "--tb=short",
-            "--asyncio-mode=auto",
-            "--strict-markers",
-            "--disable-warnings",
-            "--quiet"
-        ])
+        result = pytest.main(
+            [
+                f"tests/{suite_name}.py",
+                "-v",
+                "--tb=short",
+                "--asyncio-mode=auto",
+                "--strict-markers",
+                "--disable-warnings",
+                "--quiet",
+            ]
+        )
 
         suite_time = time.time() - suite_start
 
@@ -107,7 +109,7 @@ class TestRunner:
             "passed": 0,
             "failed": 0,
             "skipped": 0,
-            "errors": []
+            "errors": [],
         }
 
         # Mock result parsing for demonstration
@@ -212,14 +214,18 @@ class TestRunner:
         self.logger.info(f"\nTIME Total test time: {total_time:.1f}s")
         # Export detailed report
         report_file = Path("test_results.json")
-        with open(report_file, 'w') as f:
-            json.dump({
-                "timestamp": time.time(),
-                "summary": results,
-                "suite_details": self.test_results,
-                "performance": self.performance_metrics,
-                "coverage": self.coverage_data
-            }, f, indent=2)
+        with open(report_file, "w") as f:
+            json.dump(
+                {
+                    "timestamp": time.time(),
+                    "summary": results,
+                    "suite_details": self.test_results,
+                    "performance": self.performance_metrics,
+                    "coverage": self.coverage_data,
+                },
+                f,
+                indent=2,
+            )
 
         self.logger.info(f"\nREPORT Detailed report saved to: {report_file}")
 
@@ -227,11 +233,8 @@ class TestRunner:
 async def main():
     """Main test runner entry point."""
     # Set up logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger('ha_mcp_test_runner')
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logging.getLogger("ha_mcp_test_runner")
 
     runner = TestRunner()
     results = await runner.run_all_tests()

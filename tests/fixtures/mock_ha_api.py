@@ -8,6 +8,8 @@ requiring a live HA instance.
 import random
 from typing import Any
 
+_rng = random.SystemRandom()
+
 
 class MockHomeAssistantAPI:
     """
@@ -36,12 +38,7 @@ class MockHomeAssistantAPI:
             "version": "2024.12.0",
             "location_name": "Test Home",
             "time_zone": "America/New_York",
-            "unit_system": {
-                "length": "mi",
-                "mass": "lb",
-                "temperature": "°F",
-                "volume": "gal"
-            }
+            "unit_system": {"length": "mi", "mass": "lb", "temperature": "°F", "volume": "gal"},
         }
 
         # Mock entities
@@ -53,21 +50,17 @@ class MockHomeAssistantAPI:
                     "friendly_name": "Living Room Light",
                     "brightness": 255,
                     "rgb_color": [255, 255, 255],
-                    "supported_features": 63
+                    "supported_features": 63,
                 },
                 "last_updated": "2026-01-16T10:00:00Z",
-                "last_changed": "2026-01-16T10:00:00Z"
+                "last_changed": "2026-01-16T10:00:00Z",
             },
             "light.bedroom": {
                 "entity_id": "light.bedroom",
                 "state": "off",
-                "attributes": {
-                    "friendly_name": "Bedroom Light",
-                    "brightness": 0,
-                    "supported_features": 63
-                },
+                "attributes": {"friendly_name": "Bedroom Light", "brightness": 0, "supported_features": 63},
                 "last_updated": "2026-01-16T09:30:00Z",
-                "last_changed": "2026-01-16T09:30:00Z"
+                "last_changed": "2026-01-16T09:30:00Z",
             },
             "climate.living_room": {
                 "entity_id": "climate.living_room",
@@ -78,10 +71,10 @@ class MockHomeAssistantAPI:
                     "current_temperature": 70.0,
                     "hvac_modes": ["off", "heat", "cool", "auto"],
                     "preset_modes": ["home", "away", "boost"],
-                    "supported_features": 7
+                    "supported_features": 7,
                 },
                 "last_updated": "2026-01-16T10:15:00Z",
-                "last_changed": "2026-01-16T10:15:00Z"
+                "last_changed": "2026-01-16T10:15:00Z",
             },
             "sensor.temperature": {
                 "entity_id": "sensor.temperature",
@@ -89,10 +82,10 @@ class MockHomeAssistantAPI:
                 "attributes": {
                     "friendly_name": "Temperature",
                     "unit_of_measurement": "°F",
-                    "device_class": "temperature"
+                    "device_class": "temperature",
                 },
                 "last_updated": "2026-01-16T10:20:00Z",
-                "last_changed": "2026-01-16T10:20:00Z"
+                "last_changed": "2026-01-16T10:20:00Z",
             },
             "automation.morning_routine": {
                 "entity_id": "automation.morning_routine",
@@ -100,38 +93,27 @@ class MockHomeAssistantAPI:
                 "attributes": {
                     "friendly_name": "Morning Routine",
                     "id": "morning_routine",
-                    "last_triggered": "2026-01-16T07:00:00Z"
+                    "last_triggered": "2026-01-16T07:00:00Z",
                 },
                 "last_updated": "2026-01-16T07:00:00Z",
-                "last_changed": "2026-01-16T07:00:00Z"
+                "last_changed": "2026-01-16T07:00:00Z",
             },
             "scene.movie_night": {
                 "entity_id": "scene.movie_night",
                 "state": "scened",
-                "attributes": {
-                    "friendly_name": "Movie Night"
-                },
+                "attributes": {"friendly_name": "Movie Night"},
                 "last_updated": "2026-01-16T08:00:00Z",
-                "last_changed": "2026-01-16T08:00:00Z"
-            }
+                "last_changed": "2026-01-16T08:00:00Z",
+            },
         }
 
         # Mock events
         self.events = [
             {
                 "event": "state_changed",
-                "data": {
-                    "entity_id": "light.living_room",
-                    "old_state": {"state": "off"},
-                    "new_state": {"state": "on"}
-                }
+                "data": {"entity_id": "light.living_room", "old_state": {"state": "off"}, "new_state": {"state": "on"}},
             },
-            {
-                "event": "automation_triggered",
-                "data": {
-                    "entity_id": "automation.morning_routine"
-                }
-            }
+            {"event": "automation_triggered", "data": {"entity_id": "automation.morning_routine"}},
         ]
 
         # Mock services
@@ -139,18 +121,14 @@ class MockHomeAssistantAPI:
             "light": {
                 "turn_on": {"description": "Turn on light"},
                 "turn_off": {"description": "Turn off light"},
-                "toggle": {"description": "Toggle light"}
+                "toggle": {"description": "Toggle light"},
             },
             "climate": {
                 "set_temperature": {"description": "Set temperature"},
-                "set_hvac_mode": {"description": "Set HVAC mode"}
+                "set_hvac_mode": {"description": "Set HVAC mode"},
             },
-            "automation": {
-                "trigger": {"description": "Trigger automation"}
-            },
-            "scene": {
-                "turn_on": {"description": "Activate scene"}
-            }
+            "automation": {"trigger": {"description": "Trigger automation"}},
+            "scene": {"turn_on": {"description": "Activate scene"}},
         }
 
     async def get_states(self, entity_filter: str | None = None) -> list[dict[str, Any]]:
@@ -159,8 +137,12 @@ class MockHomeAssistantAPI:
 
         if entity_filter:
             # Simple string matching filter
-            states = [s for s in states if entity_filter.lower() in s["entity_id"].lower() or
-                     entity_filter.lower() in s.get("attributes", {}).get("friendly_name", "").lower()]
+            states = [
+                s
+                for s in states
+                if entity_filter.lower() in s["entity_id"].lower()
+                or entity_filter.lower() in s.get("attributes", {}).get("friendly_name", "").lower()
+            ]
 
         return states
 
@@ -168,8 +150,7 @@ class MockHomeAssistantAPI:
         """Get specific entity state."""
         return self.states.get(entity_id)
 
-    async def call_service(self, domain: str, service: str, entity_id: str | None = None,
-                          **service_data) -> bool:
+    async def call_service(self, domain: str, service: str, entity_id: str | None = None, **service_data) -> bool:
         """Call a HA service."""
         try:
             # Simulate service execution
@@ -227,7 +208,7 @@ class MockHomeAssistantAPI:
             "total_entities": len(states),
             "entities_by_domain": domains,
             "domains": list(domains.keys()),
-            "available_events": ["state_changed", "automation_triggered", "service_called"]
+            "available_events": ["state_changed", "automation_triggered", "service_called"],
         }
 
     async def get_config(self) -> dict[str, Any]:
@@ -246,7 +227,7 @@ class MockHomeAssistantAPI:
 
             # Replace basic state references
             for entity_id, state in self.states.items():
-                result = result.replace("states('" + entity_id + "')", "'" + state['state'] + "'")
+                result = result.replace("states('" + entity_id + "')", "'" + state["state"] + "'")
                 if "temperature" in entity_id:
                     result = result.replace("states('sensor.temperature')", "'72.5'")
 
@@ -280,8 +261,9 @@ class MockHomeAssistantAPI:
             return True
         return False
 
-    async def control_light(self, entity_id: str, action: str, brightness: int | None = None,
-                           rgb_color: list[int] | None = None) -> bool:
+    async def control_light(
+        self, entity_id: str, action: str, brightness: int | None = None, rgb_color: list[int] | None = None
+    ) -> bool:
         """Control a light with advanced features."""
         if entity_id in self.states and entity_id.startswith("light."):
             if action in ["on", "off", "toggle"]:
@@ -303,8 +285,9 @@ class MockHomeAssistantAPI:
                 return True
         return False
 
-    async def control_climate(self, entity_id: str, action: str, temperature: float | None = None,
-                             hvac_mode: str | None = None) -> bool:
+    async def control_climate(
+        self, entity_id: str, action: str, temperature: float | None = None, hvac_mode: str | None = None
+    ) -> bool:
         """Control climate system."""
         if entity_id in self.states and entity_id.startswith("climate."):
             if action == "set_temperature" and temperature is not None:
@@ -321,17 +304,17 @@ class MockHomeAssistantAPI:
             "peak_usage_hours": ["7-9", "18-22"],
             "energy_waste": 2.5,
             "inactive_devices": ["sensor.unused"],
-            "efficiency_score": 85
+            "efficiency_score": 85,
         }
 
     async def get_energy_usage(self, hours: int) -> dict[str, Any]:
         """Get energy usage data."""
         return {
-            "total_kwh": random.uniform(5.0, 15.0),
+            "total_kwh": _rng.uniform(5.0, 15.0),
             "by_device": {
-                "light.living_room": random.uniform(1.0, 3.0),
-                "climate.living_room": random.uniform(2.0, 5.0)
-            }
+                "light.living_room": _rng.uniform(1.0, 3.0),
+                "climate.living_room": _rng.uniform(2.0, 5.0),
+            },
         }
 
     async def get_system_health(self) -> dict[str, Any]:
@@ -340,7 +323,7 @@ class MockHomeAssistantAPI:
             "uptime_seconds": 86400,  # 1 day
             "database_size_mb": 45.2,
             "memory_usage_mb": 120.5,
-            "cpu_usage_percent": 15.3
+            "cpu_usage_percent": 15.3,
         }
 
     # Advanced orchestration methods
@@ -350,7 +333,7 @@ class MockHomeAssistantAPI:
             "scenario": scenario,
             "actions": ["activate_alarm", "send_notifications", "secure_doors"],
             "safety_measures": ["evacuation_routes", "emergency_contacts"],
-            "execution_time": 5.2
+            "execution_time": 5.2,
         }
 
     async def execute_emergency_plan(self, plan: dict[str, Any]) -> dict[str, Any]:
@@ -358,27 +341,24 @@ class MockHomeAssistantAPI:
         return {
             "success": True,
             "actions_executed": plan["actions"],
-            "execution_time": random.uniform(3.0, 8.0),
-            "notifications_sent": 2
+            "execution_time": _rng.uniform(3.0, 8.0),
+            "notifications_sent": 2,
         }
 
-    async def start_energy_optimization(self, mode: str, duration: int,
-                                       learn_patterns: bool, zones: list[str] | None) -> dict[str, Any]:
+    async def start_energy_optimization(
+        self, mode: str, duration: int, learn_patterns: bool, zones: list[str] | None
+    ) -> dict[str, Any]:
         """Start energy optimization."""
         return {
             "mode": mode,
             "duration": duration,
             "actions": ["dim_unused_lights", "adjust_thermostat"],
-            "estimated_savings_kwh": random.uniform(1.0, 3.0)
+            "estimated_savings_kwh": _rng.uniform(1.0, 3.0),
         }
 
     async def get_optimization_results(self) -> dict[str, Any]:
         """Get optimization results."""
-        return {
-            "estimated_savings_kwh": 2.1,
-            "actions_applied": 3,
-            "efficiency_improved": True
-        }
+        return {"estimated_savings_kwh": 2.1, "actions_applied": 3, "efficiency_improved": True}
 
     async def plan_multi_zone_orchestration(self, zones: list[str], scenario: str) -> dict[str, Any]:
         """Plan multi-zone orchestration."""
@@ -386,19 +366,15 @@ class MockHomeAssistantAPI:
         for zone in zones:
             zone_actions[zone] = [f"adjust_lighting_{zone}", f"control_climate_{zone}"]
 
-        return {
-            "scenario": scenario,
-            "zone_actions": zone_actions,
-            "energy_savings": random.uniform(0.5, 1.5)
-        }
+        return {"scenario": scenario, "zone_actions": zone_actions, "energy_savings": _rng.uniform(0.5, 1.5)}
 
     async def execute_multi_zone_orchestration(self, plan: dict[str, Any]) -> dict[str, Any]:
         """Execute multi-zone orchestration."""
         return {
             "success": True,
-            "execution_time": random.uniform(2.0, 6.0),
+            "execution_time": _rng.uniform(2.0, 6.0),
             "zones_coordinated": len(plan["zone_actions"]),
-            "actions_completed": sum(len(actions) for actions in plan["zone_actions"].values())
+            "actions_completed": sum(len(actions) for actions in plan["zone_actions"].values()),
         }
 
     async def parse_natural_command(self, command: str) -> dict[str, Any]:
@@ -409,50 +385,38 @@ class MockHomeAssistantAPI:
                 "intent": "control_light",
                 "entities": ["light.living_room"],
                 "action": "on" if "on" in command.lower() else "off",
-                "confidence": 0.9
+                "confidence": 0.9,
             }
         elif "temperature" in command.lower():
             return {
                 "intent": "control_climate",
                 "entities": ["climate.living_room"],
                 "temperature": 72.0,
-                "confidence": 0.85
+                "confidence": 0.85,
             }
         else:
-            return {
-                "intent": "unknown",
-                "confidence": 0.3
-            }
+            return {"intent": "unknown", "confidence": 0.3}
 
     async def execute_natural_command(self, parsed_command: dict[str, Any]) -> dict[str, Any]:
         """Execute parsed natural language command."""
         if parsed_command["intent"] == "control_light":
-            success = await self.control_light(
-                parsed_command["entities"][0],
-                parsed_command["action"]
-            )
+            success = await self.control_light(parsed_command["entities"][0], parsed_command["action"])
             return {
                 "success": success,
                 "action": f"Light control: {parsed_command['action']}",
-                "details": parsed_command
+                "details": parsed_command,
             }
         elif parsed_command["intent"] == "control_climate":
             success = await self.control_climate(
-                "climate.living_room",
-                "set_temperature",
-                temperature=parsed_command["temperature"]
+                "climate.living_room", "set_temperature", temperature=parsed_command["temperature"]
             )
             return {
                 "success": success,
                 "action": f"Climate control: {parsed_command['temperature']}°",
-                "details": parsed_command
+                "details": parsed_command,
             }
 
-        return {
-            "success": False,
-            "action": "Command not understood",
-            "details": parsed_command
-        }
+        return {"success": False, "action": "Command not understood", "details": parsed_command}
 
     async def generate_predictions(self, anticipate: str, timeframe: int) -> dict[str, Any]:
         """Generate predictive automation suggestions."""
@@ -461,9 +425,9 @@ class MockHomeAssistantAPI:
             "timeframe_minutes": timeframe,
             "predictions": [
                 {"event": "return_home", "confidence": 0.8, "time_estimate": "18:30"},
-                {"event": "dinner_time", "confidence": 0.7, "time_estimate": "19:00"}
+                {"event": "dinner_time", "confidence": 0.7, "time_estimate": "19:00"},
             ],
-            "learning_enabled": True
+            "learning_enabled": True,
         }
 
     async def setup_predictive_automation(self, predictions: dict[str, Any]) -> dict[str, Any]:
@@ -471,7 +435,7 @@ class MockHomeAssistantAPI:
         return {
             "automations_created": len(predictions["predictions"]),
             "triggers_setup": ["time_based", "location_based"],
-            "monitoring_active": True
+            "monitoring_active": True,
         }
 
     async def create_smart_schedule(self, name: str, activities: list[str]) -> dict[str, Any]:
@@ -479,12 +443,8 @@ class MockHomeAssistantAPI:
         return {
             "schedule_name": name,
             "activities": activities,
-            "optimal_times": {
-                "morning_routine": "07:00",
-                "work_setup": "08:30",
-                "evening_windy": "21:00"
-            },
-            "automations_created": len(activities)
+            "optimal_times": {"morning_routine": "07:00", "work_setup": "08:30", "evening_windy": "21:00"},
+            "automations_created": len(activities),
         }
 
     async def debug_automation(self, entity_id: str) -> dict[str, Any]:
@@ -492,7 +452,7 @@ class MockHomeAssistantAPI:
         return {
             "issues_found": ["trigger_condition", "missing_variable"],
             "recommendations": ["Add condition validation", "Use template variables"],
-            "test_results": {"syntax_check": True, "logic_validation": False}
+            "test_results": {"syntax_check": True, "logic_validation": False},
         }
 
     async def perform_maintenance_check(self) -> dict[str, Any]:
@@ -501,5 +461,5 @@ class MockHomeAssistantAPI:
             "overall_health": "good",
             "issues": [{"severity": "warning", "message": "Database size growing"}],
             "maintenance_tasks": ["backup_database", "clean_old_logs"],
-            "performance_metrics": {"response_time": 0.15, "memory_usage": 85.2}
+            "performance_metrics": {"response_time": 0.15, "memory_usage": 85.2},
         }

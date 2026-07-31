@@ -20,10 +20,7 @@ class TestSecurityMonitoring:
     async def test_security_arm_home(self, tool_functions):
         """Test arming security system in home mode."""
         request = SecurityMonitoringRequest(
-            mode="armed_home",
-            zones=["interior"],
-            notify_on_events=True,
-            ai_anomaly_detection=True
+            mode="armed_home", zones=["interior"], notify_on_events=True, ai_anomaly_detection=True
         )
 
         result = await tool_functions["security_monitoring"](request)
@@ -39,9 +36,7 @@ class TestSecurityMonitoring:
     async def test_security_arm_away(self, tool_functions):
         """Test arming security system in away mode."""
         request = SecurityMonitoringRequest(
-            mode="armed_away",
-            zones=["interior", "exterior", "perimeter"],
-            notify_on_events=True
+            mode="armed_away", zones=["interior", "exterior", "perimeter"], notify_on_events=True
         )
 
         result = await tool_functions["security_monitoring"](request)
@@ -55,10 +50,7 @@ class TestSecurityMonitoring:
     @pytest.mark.asyncio
     async def test_security_disarm(self, tool_functions):
         """Test disarming security system."""
-        request = SecurityMonitoringRequest(
-            mode="disarmed",
-            zones=[]
-        )
+        request = SecurityMonitoringRequest(mode="disarmed", zones=[])
 
         result = await tool_functions["security_monitoring"](request)
 
@@ -70,11 +62,7 @@ class TestSecurityMonitoring:
     @pytest.mark.asyncio
     async def test_security_with_ai_anomaly_detection(self, tool_functions):
         """Test security monitoring with AI anomaly detection."""
-        request = SecurityMonitoringRequest(
-            mode="armed_home",
-            ai_anomaly_detection=True,
-            notify_on_events=True
-        )
+        request = SecurityMonitoringRequest(mode="armed_home", ai_anomaly_detection=True, notify_on_events=True)
 
         result = await tool_functions["security_monitoring"](request)
 
@@ -145,7 +133,7 @@ class TestEnergyOptimization:
             mode="eco",
             duration=3600,  # 1 hour
             learn_patterns=True,
-            zones=["living_areas", "bedrooms"]
+            zones=["living_areas", "bedrooms"],
         )
 
         result = await tool_functions["energy_optimization"](request)
@@ -164,7 +152,7 @@ class TestEnergyOptimization:
         request = EnergyOptimizationRequest(
             mode="comfort",
             duration=7200,  # 2 hours
-            learn_patterns=True
+            learn_patterns=True,
         )
 
         result = await tool_functions["energy_optimization"](request)
@@ -181,7 +169,7 @@ class TestEnergyOptimization:
         request = EnergyOptimizationRequest(
             mode="performance",
             duration=1800,  # 30 minutes
-            learn_patterns=False
+            learn_patterns=False,
         )
 
         result = await tool_functions["energy_optimization"](request)
@@ -194,11 +182,7 @@ class TestEnergyOptimization:
     @pytest.mark.asyncio
     async def test_energy_optimization_zones(self, tool_functions):
         """Test energy optimization for specific zones."""
-        request = EnergyOptimizationRequest(
-            mode="eco",
-            zones=["living_room", "kitchen", "bedroom"],
-            duration=3600
-        )
+        request = EnergyOptimizationRequest(mode="eco", zones=["living_room", "kitchen", "bedroom"], duration=3600)
 
         result = await tool_functions["energy_optimization"](request)
 
@@ -420,11 +404,7 @@ class TestSecurityPerformance:
         import time
 
         start_time = time.time()
-        request = SecurityMonitoringRequest(
-            mode="armed_away",
-            zones=["all"],
-            ai_anomaly_detection=True
-        )
+        request = SecurityMonitoringRequest(mode="armed_away", zones=["all"], ai_anomaly_detection=True)
         result = await tool_functions["security_monitoring"](request)
         response_time = time.time() - start_time
 
@@ -451,11 +431,7 @@ class TestSecurityPerformance:
     @pytest.mark.asyncio
     async def test_energy_optimization_safety(self, tool_functions):
         """Test that energy optimization doesn't compromise safety."""
-        request = EnergyOptimizationRequest(
-            mode="eco",
-            duration=3600,
-            zones=["security_zones"]
-        )
+        request = EnergyOptimizationRequest(mode="eco", duration=3600, zones=["security_zones"])
 
         result = await tool_functions["energy_optimization"](request)
 

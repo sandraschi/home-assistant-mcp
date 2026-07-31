@@ -22,12 +22,7 @@ class TestResponseTimeBenchmarks:
     @pytest.fixture
     def performance_metrics(self):
         """Performance metrics collector."""
-        return {
-            "response_times": [],
-            "memory_usage": [],
-            "cpu_usage": [],
-            "timestamps": []
-        }
+        return {"response_times": [], "memory_usage": [], "cpu_usage": [], "timestamps": []}
 
     @pytest.mark.asyncio
     async def test_query_entities_performance(self, tool_functions, performance_metrics):
@@ -36,7 +31,7 @@ class TestResponseTimeBenchmarks:
         await tool_functions["query_entities"]()
 
         # Benchmark
-        for i in range(10):
+        for _i in range(10):
             start_time = time.time()
             result = await tool_functions["query_entities"]()
             end_time = time.time()
@@ -63,15 +58,13 @@ class TestResponseTimeBenchmarks:
         response_times = []
 
         # Test multiple light control operations
-        for i in range(5):
+        for _i in range(5):
             start_time = time.time()
 
             from home_assistant_mcp.mcp.tools import LightControlRequest
+
             result = await tool_functions["control_light_advanced"](
-                LightControlRequest(
-                    entity_id="light.living_room",
-                    action="toggle"
-                )
+                LightControlRequest(entity_id="light.living_room", action="toggle")
             )
 
             end_time = time.time()
@@ -90,10 +83,7 @@ class TestResponseTimeBenchmarks:
         for i in range(3):
             start_time = time.time()
 
-            request = SmartHomeOrchestrationRequest(
-                goal=f"Performance test orchestration {i}",
-                max_steps=3
-            )
+            request = SmartHomeOrchestrationRequest(goal=f"Performance test orchestration {i}", max_steps=3)
 
             result = await tool_functions["smart_home_orchestration"](request)
             end_time = time.time()
@@ -115,6 +105,7 @@ class TestLoadTesting:
     @pytest.mark.asyncio
     async def test_concurrent_queries(self, tool_functions):
         """Test concurrent entity queries."""
+
         async def single_query():
             result = await tool_functions["query_entities"]()
             return result["success"]
@@ -138,7 +129,6 @@ class TestLoadTesting:
     @pytest.mark.asyncio
     async def test_mixed_workload_performance(self, tool_functions):
         """Test mixed workload performance."""
-        operations = []
 
         # Mix of different operation types
         async def run_query():
@@ -147,6 +137,7 @@ class TestLoadTesting:
 
         async def run_light_control():
             from home_assistant_mcp.mcp.tools import LightControlRequest
+
             result = await tool_functions["control_light_advanced"](
                 LightControlRequest(entity_id="light.living_room", action="toggle")
             )
@@ -160,7 +151,7 @@ class TestLoadTesting:
         # Execute mixed workload
         start_time = time.time()
         tasks = []
-        for i in range(5):
+        for _i in range(5):
             tasks.extend([run_query(), run_light_control(), run_orchestration()])
 
         results = await asyncio.gather(*tasks)
@@ -170,7 +161,7 @@ class TestLoadTesting:
         operation_counts = {"query": 0, "light": 0, "orchestration": 0}
         successful_operations = 0
 
-        for op_type, success, timestamp in results:
+        for op_type, success, _timestamp in results:
             operation_counts[op_type] += 1
             if success:
                 successful_operations += 1
@@ -197,6 +188,7 @@ class TestLoadTesting:
                 task = tool_functions["query_entities"]()
             elif i % 3 == 1:
                 from home_assistant_mcp.mcp.tools import LightControlRequest
+
                 task = tool_functions["control_light_advanced"](
                     LightControlRequest(entity_id="light.living_room", action="toggle")
                 )
@@ -238,10 +230,7 @@ class TestScalabilityTesting:
         for complexity in complexity_levels:
             start_time = time.time()
 
-            request = SmartHomeOrchestrationRequest(
-                goal=f"Complexity {complexity} orchestration",
-                max_steps=complexity
-            )
+            request = SmartHomeOrchestrationRequest(goal=f"Complexity {complexity} orchestration", max_steps=complexity)
 
             result = await tool_functions["smart_home_orchestration"](request)
             end_time = time.time()
@@ -252,8 +241,10 @@ class TestScalabilityTesting:
         # Execution time should scale reasonably with complexity
         # Allow some variance but not exponential growth
         for i in range(1, len(execution_times)):
-            ratio = execution_times[i] / execution_times[i-1]
-            assert ratio < 3.0, f"Execution time scaled poorly: {ratio:.2f}x increase from complexity {complexity_levels[i-1]} to {complexity_levels[i]}"
+            ratio = execution_times[i] / execution_times[i - 1]
+            assert ratio < 3.0, (
+                f"Execution time scaled poorly: {ratio:.2f}x increase from complexity {complexity_levels[i - 1]} to {complexity_levels[i]}"
+            )
 
 
 class TestResourceEfficiency:
@@ -263,16 +254,13 @@ class TestResourceEfficiency:
     async def test_cpu_usage_during_operations(self, tool_functions):
         """Test CPU usage during intensive operations."""
         # Baseline CPU
-        baseline_cpu = psutil.cpu_percent(interval=0.1)
+        psutil.cpu_percent(interval=0.1)
 
         # Intensive operation
         start_time = time.time()
         tasks = []
         for i in range(10):
-            request = SmartHomeOrchestrationRequest(
-                goal=f"CPU test {i}",
-                max_steps=5
-            )
+            request = SmartHomeOrchestrationRequest(goal=f"CPU test {i}", max_steps=5)
             tasks.append(tool_functions["smart_home_orchestration"](request))
 
         await asyncio.gather(*tasks)
@@ -312,7 +300,7 @@ class TestReliabilityTesting:
         """Test that operations produce consistent results."""
         # Run same operation multiple times
         results = []
-        for i in range(5):
+        for _i in range(5):
             result = await tool_functions["query_entities"]()
             results.append(result)
 
@@ -329,7 +317,7 @@ class TestReliabilityTesting:
         error_results = []
 
         # Trigger same error multiple times
-        for i in range(3):
+        for _i in range(3):
             result = await tool_functions["query_entities"](entity_id="invalid")
             error_results.append(result)
 
@@ -343,6 +331,7 @@ class TestReliabilityTesting:
     @pytest.mark.asyncio
     async def test_concurrent_operation_isolation(self, tool_functions):
         """Test that concurrent operations don't interfere with each other."""
+
         async def isolated_operation(op_id: int):
             # Each operation uses different entities to avoid conflicts
             entities = ["light.living_room", "light.bedroom", "climate.living_room"]
@@ -354,11 +343,9 @@ class TestReliabilityTesting:
             else:
                 # Control operation
                 from home_assistant_mcp.mcp.tools import LightControlRequest
+
                 result = await tool_functions["control_light_advanced"](
-                    LightControlRequest(
-                        entity_id=entities[op_id % len(entities)],
-                        action="toggle"
-                    )
+                    LightControlRequest(entity_id=entities[op_id % len(entities)], action="toggle")
                 )
                 return ("control", result["success"])
 
@@ -381,7 +368,7 @@ class TestBenchmarkReporting:
         operations = []
 
         # Quick operations
-        for i in range(5):
+        for _ in range(5):
             start = time.time()
             result = await tool_functions["query_entities"]()
             end = time.time()
@@ -403,8 +390,8 @@ class TestBenchmarkReporting:
                 "total_operations": len(operations),
                 "successful_operations": sum(1 for _, _, success in operations if success),
                 "average_response_time": statistics.mean(time for _, time, _ in operations),
-                "p95_response_time": statistics.quantiles([time for _, time, _ in operations], n=20)[18]
-            }
+                "p95_response_time": statistics.quantiles([time for _, time, _ in operations], n=20)[18],
+            },
         }
 
         # Report should be comprehensive
@@ -415,6 +402,7 @@ class TestBenchmarkReporting:
 
         # Save report for analysis
         import json
+
         with open("performance_report.json", "w") as f:
             json.dump(report, f, indent=2)
 
