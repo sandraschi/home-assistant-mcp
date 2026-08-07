@@ -1,4 +1,4 @@
-Â´â•-â”Param([switch]$Headless)
+Â´â•-â"Param([switch]$Headless)
 
 # --- SOTA Headless Standard ---
 if ($Headless -and ($Host.UI.RawUI.WindowTitle -notmatch 'Hidden')) {

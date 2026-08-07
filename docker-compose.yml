@@ -1,15 +1,35 @@
 version: '3.8'
 
 services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    ports:
+      - "8123:8123"
+    volumes:
+      - ./ha-config:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Europe/Vienna
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
   home-assistant-mcp:
     build: .
     ports:
       - "${MCP_PORT:-10782}:8080"
     environment:
-      - HA_URL=${HA_URL:-http://homeassistant.local:8123}
+      - HA_URL=http://homeassistant:8123
       - HA_ACCESS_TOKEN=${HA_ACCESS_TOKEN}
       - MCP_PORT=${MCP_PORT:-10782}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      homeassistant:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
@@ -17,6 +37,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    # Optional: Mount config file
-    # volumes:
-    #   - ./config.yaml:/app/config.yaml:ro
