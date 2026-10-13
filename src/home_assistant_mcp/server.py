@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Home Assistant MCP Server — FastMCP 3.1, sampling, agentic workflow."""
+"""Home Assistant MCP Server - FastMCP 3.1, sampling, agentic workflow."""
 
 import logging
 import sys
