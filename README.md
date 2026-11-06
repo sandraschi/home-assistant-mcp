@@ -11,7 +11,7 @@
 
 > 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
 
-FastMCP 3.2.0 MCP server and webapp for **Home Assistant**. Portmanteau tool, sampling, agentic workflow, prompts, and skills. Webapp follows SOTA standards (React, Tailwind, dark theme, ports 10796/10797).
+FastMCP 3.2.0 MCP server and webapp for **Home Assistant**. Portmanteau tool, sampling, agentic workflow, prompts, and skills. Webapp follows SOTA standards (React, Tailwind, dark theme, ports 10834/10835).
 
 ## Features
 
@@ -23,8 +23,8 @@ FastMCP 3.2.0 MCP server and webapp for **Home Assistant**. Portmanteau tool, sa
 
 ## Ports
 
-- Backend: **10796** (REST + MCP SSE)
-- Dashboard: **10797** (Vite)
+- Backend: **10835** (REST + MCP SSE)
+- Dashboard: **10834** (Vite)
 
 ## Quick Start
 
@@ -66,7 +66,7 @@ Set **HA_URL** (e.g. http://homeassistant.local:8123) and **HA_TOKEN** (Long-Liv
 {
   "mcpServers": {
     "home-assistant": {
-      "url": "http://localhost:10796/sse",
+      "url": "http://localhost:10835/sse",
       "transport": "sse"
     }
   }
