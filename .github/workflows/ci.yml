@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: webapp/package-lock.json
+          cache-dependency-path: web_sota/package-lock.json
       - name: Install Python dependencies
         run: uv sync --extra dev
 
@@ -46,7 +46,7 @@ jobs:
 
       - name: Install web dependencies
         run: npm ci
-        working-directory: webapp
+        working-directory: web_sota
       - name: Biome check
         run: npm run biome:ci
-        working-directory: webapp
+        working-directory: web_sota

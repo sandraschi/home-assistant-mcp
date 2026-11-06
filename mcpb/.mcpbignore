@@ -34,6 +34,5 @@ verify_pack.py
 
 # Non-MCP components detected in this repo
 web_sota/
-webapp/
 native/
 scripts/
