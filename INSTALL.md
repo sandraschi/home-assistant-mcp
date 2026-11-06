@@ -52,7 +52,7 @@ If you prefer not to use `just`:
 
 4. (optional) Start the frontend:
    ```powershell
-   cd webapp
+   cd web_sota
    npm install
    npm run dev
    ```

@@ -11,7 +11,7 @@ default:
 bootstrap:
     uv sync --extra dev
     uv run pre-commit install
-    Set-Location webapp; npm ci; if ($LASTEXITCODE -ne 0) { npm install }
+    Set-Location web_sota; npm ci; if ($LASTEXITCODE -ne 0) { npm install }
     Write-Host "Pre-commit hooks installed." -ForegroundColor Green
 
 # --- Quality ---

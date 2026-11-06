@@ -43,7 +43,7 @@ If you don't have `just` installed:
 
 ## Setup
 
-Clone the repo and install dependencies from the **repository root** (not `webapp/`):
+Clone the repo and install dependencies from the **repository root** (not `web_sota/`):
 
 ```powershell
 git clone https://github.com/sandraschi/home-assistant-mcp.git
@@ -54,8 +54,8 @@ uv sync
 Start the webapp from the **same** clone:
 
 ```powershell
-cd webapp
-.\start.ps1
+cd web_sota
+npm run dev
 ```
 
 Set **HA_URL** (e.g. http://homeassistant.local:8123) and **HA_TOKEN** (Long-Lived Access Token from HA Profile  Long-Lived Access Tokens).
