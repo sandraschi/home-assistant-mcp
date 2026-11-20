@@ -1,11 +1,14 @@
 """FastAPI backend with logging support."""
-import sys
-from pathlib import Path
+
 from contextlib import asynccontextmanager
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from web_sota.backend.routes.logging import router as logging_router
+
 from web_sota.backend.log_buffer import activity_log
+from web_sota.backend.routes.logging import router as logging_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -16,15 +19,31 @@ async def lifespan(app: FastAPI):
     activity_log.info("server", "Server started")
     yield
 
+
 app = FastAPI(title="Home Assistant MCP", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:10834",
+        "http://localhost:10834",
+        "tauri://localhost",
+        "http://tauri.localhost",
+        "https://tauri.localhost",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(logging_router)
+
 
 @app.get("/health")
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "server": "Home Assistant MCP", "version": "0.1.0"}
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="127.0.0.1", port=10835)
